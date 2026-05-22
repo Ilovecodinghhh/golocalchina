@@ -1,0 +1,27 @@
+{
+  "app": {
+    "name": "GoLocalChina",
+    "tagline": "连接外国游客与中国持证导游",
+    "platform_notice": "GoLocalChina是一个信息服务平台。我们为您连接独立持证导游——我们不组织旅游活动。"
+  },
+  "nav": {
+    "home": "首页",
+    "guides": "寻找导游",
+    "how_it_works": "如何运作",
+    "login": "登录",
+    "register": "注册"
+  },
+  "search": {
+    "title": "寻找您的本地导游",
+    "city": "城市",
+    "language": "语言",
+    "specialty": "专长",
+    "search_btn": "搜索导游",
+    "results": "共{{count}}位导游可选",
+    "no_results": "未找到导游，请尝试其他筛选条件。",
+    "price_set_by_guide": "价格由导游设定",
+    "per_half_day": "/ 半天",
+    "per_day": "/ 天",
+    "per_hour": "/ 小时"
+  }
+}

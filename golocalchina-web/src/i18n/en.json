@@ -1,0 +1,54 @@
+{
+  "app": {
+    "name": "GoLocalChina",
+    "tagline": "Connect with certified local guides across China",
+    "platform_notice": "GoLocalChina is an information service platform. We connect you with independent, licensed guides — we do not organize tours."
+  },
+  "nav": {
+    "home": "Home",
+    "guides": "Find a Guide",
+    "how_it_works": "How It Works",
+    "login": "Log In",
+    "register": "Sign Up"
+  },
+  "search": {
+    "title": "Find Your Local Guide",
+    "city": "City",
+    "language": "Language",
+    "specialty": "Specialty",
+    "search_btn": "Search Guides",
+    "results": "{{count}} guides available",
+    "no_results": "No guides found. Try different filters.",
+    "price_set_by_guide": "Price set by guide",
+    "per_half_day": "/ half day",
+    "per_day": "/ day",
+    "per_hour": "/ hour"
+  },
+  "guide": {
+    "verified": "License Verified ✓",
+    "languages": "Languages",
+    "specialties": "Specialties",
+    "rating": "Rating",
+    "reviews": "reviews",
+    "connect": "Request to Connect",
+    "connect_note": "You are requesting to connect with an independent guide. GoLocalChina facilitates this connection but is not a party to the service agreement between you and the guide.",
+    "listings": "Service Offerings",
+    "about": "About This Guide"
+  },
+  "cities": {
+    "Beijing": "Beijing",
+    "Shanghai": "Shanghai",
+    "Xian": "Xi'an",
+    "Chengdu": "Chengdu"
+  },
+  "specialties": {
+    "history": "History & Culture",
+    "food": "Food & Culinary",
+    "nature": "Nature & Hiking",
+    "photography": "Photography",
+    "nightlife": "Nightlife",
+    "art": "Art & Museums",
+    "family": "Family Friendly",
+    "shopping": "Shopping"
+  }
+}
