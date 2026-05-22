@@ -1,19 +1,21 @@
 """Application configuration — env-driven via pydantic-settings."""
+import os
 from pydantic_settings import BaseSettings
+
+# Railway provides a writable /tmp — use it for SQLite
+_default_db = "sqlite+aiosqlite:///./golocalchina.db"
+if os.environ.get("RAILWAY_ENVIRONMENT"):
+    _default_db = "sqlite+aiosqlite:////tmp/golocalchina.db"
 
 
 class Settings(BaseSettings):
-    # Database — SQLite for free tier, PostgreSQL for production
-    database_url: str = "sqlite+aiosqlite:///./golocalchina.db"
-    # JWT
+    database_url: str = _default_db
     jwt_secret_key: str = "change-me-in-production"
     jwt_algorithm: str = "HS256"
     jwt_access_token_expire_minutes: int = 30
     jwt_refresh_token_expire_days: int = 7
-    # Platform
     platform_name: str = "GoLocalChina"
-    # CORS
-    cors_origins: str = "*"  # Set to your Vercel URL in production
+    cors_origins: str = "*"
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
