@@ -1,9 +1,10 @@
-"""User, TouristProfile, GuideProfile models — Path B compliant."""
+"""User, TouristProfile, GuideProfile models — Path B compliant.
+Compatible with both SQLite and PostgreSQL."""
 import enum
 import uuid
 from datetime import datetime, date
 from typing import Optional
-from sqlalchemy import String, Enum, Date, SmallInteger, Integer, Numeric, Text, ARRAY, ForeignKey, Boolean
+from sqlalchemy import String, Enum, Date, SmallInteger, Integer, Numeric, Text, ForeignKey, Boolean, JSON
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base, TimestampMixin, UUIDMixin
@@ -35,11 +36,10 @@ class User(Base, UUIDMixin, TimestampMixin):
     email: Mapped[Optional[str]] = mapped_column(String(255), unique=True, nullable=True)
     phone_e164: Mapped[Optional[str]] = mapped_column(String(20), unique=True, nullable=True)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
-    role: Mapped[UserRole] = mapped_column(Enum(UserRole), nullable=False)
-    status: Mapped[UserStatus] = mapped_column(Enum(UserStatus), default=UserStatus.pending)
+    role: Mapped[str] = mapped_column(String(20), nullable=False)
+    status: Mapped[str] = mapped_column(String(20), default="pending")
     locale: Mapped[str] = mapped_column(String(10), default="en-US")
 
-    # Relationships
     tourist_profile: Mapped[Optional["TouristProfile"]] = relationship(back_populates="user", uselist=False)
     guide_profile: Mapped[Optional["GuideProfile"]] = relationship(back_populates="user", uselist=False)
 
@@ -47,11 +47,11 @@ class User(Base, UUIDMixin, TimestampMixin):
 class TouristProfile(Base, TimestampMixin):
     __tablename__ = "tourist_profiles"
 
-    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), primary_key=True)
     display_name: Mapped[str] = mapped_column(String(80), nullable=False)
     nationality: Mapped[Optional[str]] = mapped_column(String(2))
     preferred_currency: Mapped[str] = mapped_column(String(3), default="USD")
-    preferred_languages: Mapped[list] = mapped_column(ARRAY(String(10)), default=[])
+    preferred_languages: Mapped[Optional[str]] = mapped_column(JSON, default=[])
     avatar_url: Mapped[Optional[str]] = mapped_column(Text)
 
     user: Mapped["User"] = relationship(back_populates="tourist_profile")
@@ -60,29 +60,25 @@ class TouristProfile(Base, TimestampMixin):
 class GuideProfile(Base, TimestampMixin):
     __tablename__ = "guide_profiles"
 
-    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), primary_key=True)
     legal_name: Mapped[str] = mapped_column(String(120), nullable=False)
     display_name: Mapped[str] = mapped_column(String(80), nullable=False)
-    # 导游证 fields
     guide_license_no: Mapped[str] = mapped_column(String(40), unique=True, nullable=False)
     guide_license_issuer: Mapped[str] = mapped_column(String(120), nullable=False)
-    guide_license_expires_on: Mapped[date] = mapped_column(Date, nullable=False)
-    kyc_status: Mapped[KYCStatus] = mapped_column(Enum(KYCStatus), default=KYCStatus.unsubmitted)
-    # Service profile
-    languages: Mapped[list] = mapped_column(ARRAY(String(10)), default=[])
-    service_cities: Mapped[list] = mapped_column(ARRAY(Text), default=[])
-    specialties: Mapped[list] = mapped_column(ARRAY(Text), default=[])
+    guide_license_expires_on: Mapped[Optional[str]] = mapped_column(String(10))
+    kyc_status: Mapped[str] = mapped_column(String(20), default="unsubmitted")
+    languages: Mapped[Optional[str]] = mapped_column(JSON, default=[])
+    service_cities: Mapped[Optional[str]] = mapped_column(JSON, default=[])
+    specialties: Mapped[Optional[str]] = mapped_column(JSON, default=[])
     bio: Mapped[Optional[str]] = mapped_column(Text)
     avatar_url: Mapped[Optional[str]] = mapped_column(Text)
-    # Guide-set pricing — platform does NOT set prices
     default_rate_cny: Mapped[float] = mapped_column(Numeric(12, 2), default=0)
     rating_avg: Mapped[float] = mapped_column(Numeric(3, 2), default=0)
     rating_count: Mapped[int] = mapped_column(Integer, default=0)
     # Guide's payment info (tourist pays guide directly)
-    alipay_qr_url: Mapped[Optional[str]] = mapped_column(Text)       # Guide's Alipay QR image URL
-    wechat_pay_qr_url: Mapped[Optional[str]] = mapped_column(Text)   # Guide's WeChat Pay QR image URL
-    accepts_cash: Mapped[bool] = mapped_column(default=True)          # Accepts cash CNY/USD
-    payment_note: Mapped[Optional[str]] = mapped_column(String(255))  # e.g. "I accept USD cash or Alipay"
-
+    alipay_qr_url: Mapped[Optional[str]] = mapped_column(Text)
+    wechat_pay_qr_url: Mapped[Optional[str]] = mapped_column(Text)
+    accepts_cash: Mapped[bool] = mapped_column(Boolean, default=True)
+    payment_note: Mapped[Optional[str]] = mapped_column(String(255))
 
     user: Mapped["User"] = relationship(back_populates="guide_profile")

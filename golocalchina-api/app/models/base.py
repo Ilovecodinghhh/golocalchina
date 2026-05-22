@@ -1,8 +1,7 @@
-"""SQLAlchemy declarative base + common mixins."""
+"""SQLAlchemy declarative base + common mixins. SQLite + PostgreSQL compatible."""
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, DateTime, text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, DateTime, String, event
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -11,15 +10,10 @@ class Base(DeclarativeBase):
 
 
 class TimestampMixin:
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=text("now()"), nullable=False
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=text("now()"), onupdate=datetime.now(timezone.utc), nullable=False
-    )
+    created_at: Mapped[str] = mapped_column(String(30), default=lambda: datetime.now(timezone.utc).isoformat())
+    updated_at: Mapped[str] = mapped_column(String(30), default=lambda: datetime.now(timezone.utc).isoformat(),
+                                            onupdate=lambda: datetime.now(timezone.utc).isoformat())
 
 
 class UUIDMixin:
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()")
-    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
