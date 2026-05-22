@@ -3,9 +3,9 @@ services:
   db:
     image: postgis/postgis:15-3.4
     environment:
-      POSTGRES_USER: ctrip
-      POSTGRES_PASSWORD: ctrip_secret
-      POSTGRES_DB: ctripguides
+      POSTGRES_USER: glc
+      POSTGRES_PASSWORD: glc_secret
+      POSTGRES_DB: golocalchina
     ports:
       - "5432:5432"
     volumes:
@@ -21,7 +21,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql+asyncpg://ctrip:ctrip_secret@db:5432/ctripguides
+      DATABASE_URL: postgresql+asyncpg://glc:glc_secret@db:5432/golocalchina
       REDIS_URL: redis://redis:6379/0
       JWT_SECRET_KEY: dev-secret-change-in-production
     depends_on:

@@ -175,8 +175,8 @@ Return a verification report: CONFIRMED / UNCONFIRMED / CONTRADICTED for each ma
 
     agents["researcher"].handoff_to(
         "legal",
-        "FINAL: GO/NO-GO memo for Ctrip-Guides business model",
-        f"""Produce the FINAL GO/NO-GO decision memo for the Ctrip-Guides platform.
+        "FINAL: GO/NO-GO memo for GoLocalChina business model",
+        f"""Produce the FINAL GO/NO-GO decision memo for the GoLocalChina platform.
 
 You have:
 1. Your initial legal analysis
@@ -184,7 +184,7 @@ You have:
 
 PRODUCE A MEMO WITH THIS EXACT STRUCTURE:
 
-# GO/NO-GO MEMO: Ctrip-Guides Platform — China Tourism Licensing
+# GO/NO-GO MEMO: GoLocalChina Platform — China Tourism Licensing
 
 ## VERDICT: [GO / CONDITIONAL GO / NO-GO]
 

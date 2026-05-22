@@ -76,7 +76,7 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
 
 def create_app() -> FastAPI:
     app = FastAPI(
-        title="Ctrip-Guides API",
+        title="GoLocalChina API",
         version="0.1.0",
         description=(
             "Two-sided intermediary platform connecting foreign visitors with "

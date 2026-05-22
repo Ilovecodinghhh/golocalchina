@@ -19,7 +19,7 @@ class ResearcherAgent(BaseAgent):
         self._skills_cache = None
 
     def system_prompt(self) -> str:
-        return """You are the Researcher agent for a two-sided platform connecting foreign tourists with locally certified guides in China (codename: "Ctrip-Guides").
+        return """You are the Researcher agent for a two-sided platform connecting foreign tourists with locally certified guides in China (codename: "GoLocalChina").
 
 Your responsibilities:
 1. Market research — competitor landscape (Klook, GetYourGuide, Trip.com, Viator)

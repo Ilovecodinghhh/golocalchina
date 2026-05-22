@@ -19,7 +19,7 @@ class LegalAgent(BaseAgent):
         self._skills_cache = None
 
     def system_prompt(self) -> str:
-        return """You are the Legal agent for a two-sided platform connecting foreign tourists with locally certified guides in China (codename: "Ctrip-Guides").
+        return """You are the Legal agent for a two-sided platform connecting foreign tourists with locally certified guides in China (codename: "GoLocalChina").
 
 Your responsibilities:
 1. Draft Terms of Service for the platform (bilingual EN/CN)

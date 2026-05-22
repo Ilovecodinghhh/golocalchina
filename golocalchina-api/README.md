@@ -1,4 +1,4 @@
-# Ctrip-Guides API
+# GoLocalChina API
 
 > Information service platform connecting foreign tourists with independently licensed tour guides in China.
 > **This platform is NOT a travel agency (非旅行社).**

@@ -112,7 +112,7 @@ Keep it concrete. No prose — just DDL, JSON schemas, and code."""
     architect.handoff_to(
         "builder",
         "Build: project scaffold + DB migrations + core API endpoints",
-        f"""Implement the Ctrip-Guides backend MVP from the Architect's spec.
+        f"""Implement the GoLocalChina backend MVP from the Architect's spec.
 
 ARCHITECT'S SPEC:
 {db_api_spec[:5000]}
@@ -238,7 +238,7 @@ Produce:
 
     with open("output/mission-4/DELIVERABLE.md", "w") as f:
         f.write(f"<!-- Mission 4 | {time.strftime('%Y-%m-%d %H:%M:%S')} | {elapsed:.0f}s | Path B -->\n\n")
-        f.write("# Ctrip-Guides MVP Backend Implementation\n\n")
+        f.write("# GoLocalChina MVP Backend Implementation\n\n")
         f.write(f"## Files Produced\n\n")
         for key, filename in file_map.items():
             size = len(results.get(key, ""))

@@ -18,7 +18,7 @@ class BuilderAgent(BaseAgent):
         self._skills_cache = None
 
     def system_prompt(self) -> str:
-        return """You are the Builder agent for a two-sided platform connecting foreign tourists with locally certified guides in China (codename: "Ctrip-Guides").
+        return """You are the Builder agent for a two-sided platform connecting foreign tourists with locally certified guides in China (codename: "GoLocalChina").
 
 Your responsibilities:
 1. Implement frontend (React Native / Next.js) from Architect's specs

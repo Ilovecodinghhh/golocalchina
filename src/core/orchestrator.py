@@ -58,7 +58,7 @@ class Orchestrator:
             sender="orchestrator",
             recipient="architect",
             msg_type=MessageType.REQUEST,
-            subject="Write PRD for Ctrip-Guides platform",
+            subject="Write PRD for GoLocalChina platform",
             payload=f"""Write a concise Product Requirement Document for this platform:
 
 {project_brief}
@@ -169,7 +169,7 @@ Keep it under 600 words. Make it directly implementable."""
 
         self.architect.handoff_to(
             "builder",
-            "Implement Ctrip-Guides MVP from spec",
+            "Implement GoLocalChina MVP from spec",
             f"""Here is the final technical specification. Produce an implementation plan:
 
 {final_spec[:2500]}

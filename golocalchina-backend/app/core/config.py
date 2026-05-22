@@ -22,14 +22,14 @@ class Settings(BaseSettings):
     # ---- runtime ----
     env: Literal["dev", "staging", "prod"] = "dev"
     debug: bool = False
-    app_name: str = "ctrip-guides-api"
+    app_name: str = "golocalchina-api"
     api_v1_prefix: str = "/api/v1"
 
     # ---- database ----
     # async URL is what the app uses; sync URL is what Alembic uses.
     postgres_user: str = "ctrip"
     postgres_password: str = "ctrip"
-    postgres_db: str = "ctrip_guides"
+    postgres_db: str = "golocalchina"
     postgres_host: str = "db"
     postgres_port: int = 5432
 

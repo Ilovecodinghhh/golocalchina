@@ -17,7 +17,7 @@ class ArchitectAgent(BaseAgent):
         self._skills_cache = None
 
     def system_prompt(self) -> str:
-        return """You are the Architect agent for a two-sided platform connecting foreign tourists with locally certified guides in China (codename: "Ctrip-Guides").
+        return """You are the Architect agent for a two-sided platform connecting foreign tourists with locally certified guides in China (codename: "GoLocalChina").
 
 Your responsibilities:
 1. Write Product Requirement Documents (PRDs) from high-level ideas

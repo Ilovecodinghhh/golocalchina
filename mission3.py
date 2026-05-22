@@ -46,10 +46,10 @@ def main():
         recipient="legal",
         msg_type=MessageType.REQUEST,
         subject="Draft Terms of Service — Path B pure platform",
-        payload=f"""Draft the Terms of Service for Ctrip-Guides platform.
+        payload=f"""Draft the Terms of Service for GoLocalChina platform.
 
 PLATFORM FACTS:
-- Name: Ctrip-Guides (working name)
+- Name: GoLocalChina (working name)
 - Model: Information service platform connecting tourists with independent licensed guides
 - Path B: We are NOT a travel agency. We facilitate connections only.
 - Revenue: 12% information service fee (信息服务费) on each completed connection
@@ -95,7 +95,7 @@ jurisdiction-specific counsel input with [COUNSEL REVIEW]."""
         recipient="legal",
         msg_type=MessageType.REQUEST,
         subject="Draft Privacy Policy — PIPL + GDPR dual compliance",
-        payload="""Draft the Privacy Policy for Ctrip-Guides platform.
+        payload="""Draft the Privacy Policy for GoLocalChina platform.
 
 DUAL COMPLIANCE: Must satisfy BOTH:
 - China PIPL (个人信息保护法) — for all users, data processed in China
@@ -149,7 +149,7 @@ Output the FULL Privacy Policy text. Mark [COUNSEL REVIEW] where needed."""
         recipient="legal",
         msg_type=MessageType.REQUEST,
         subject="Draft Guide Service Agreement — independent contractor",
-        payload="""Draft the Guide Service Agreement for Ctrip-Guides platform.
+        payload="""Draft the Guide Service Agreement for GoLocalChina platform.
 This is the contract between the platform and each guide.
 
 CRITICAL: Must establish INDEPENDENT CONTRACTOR relationship, NOT employment.
@@ -279,7 +279,7 @@ Format as:
 
     with open("output/mission-3/DELIVERABLE.md", "w") as f:
         f.write(f"<!-- Mission 3 | {time.strftime('%Y-%m-%d %H:%M:%S')} | {elapsed:.0f}s | Path B -->\n\n")
-        f.write("# Ctrip-Guides Legal Document Package\n\n")
+        f.write("# GoLocalChina Legal Document Package\n\n")
         f.write("## Documents Produced\n\n")
         for key, filename in file_map.items():
             size = len(results.get(key, ""))

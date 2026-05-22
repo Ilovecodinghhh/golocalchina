@@ -1,4 +1,4 @@
-"""FastAPI application — Ctrip-Guides API (Path B: Information Service Platform)."""
+"""FastAPI application — GoLocalChina API (Path B: Information Service Platform)."""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -7,7 +7,7 @@ from app.api.v1.guides import router as guides_router
 from app.api.v1.service_requests import router as service_requests_router
 
 app = FastAPI(
-    title="Ctrip-Guides API",
+    title="GoLocalChina API",
     description=(
         "Information service platform connecting foreign tourists with "
         "independently licensed tour guides in China. "
@@ -32,4 +32,4 @@ app.include_router(service_requests_router, prefix="/api/v1")
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "platform": "Ctrip-Guides", "role": "information_service_platform"}
+    return {"status": "ok", "platform": "GoLocalChina", "role": "information_service_platform"}

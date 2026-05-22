@@ -52,7 +52,7 @@ def main():
         recipient="architect",
         msg_type=MessageType.REQUEST,
         subject="Write MVP Technical Specification — Path B pure platform",
-        payload=f"""Write the complete MVP Technical Specification for Ctrip-Guides.
+        payload=f"""Write the complete MVP Technical Specification for GoLocalChina.
 
 FOUNDER DECISIONS (non-negotiable):
 - Path B: Pure tech/information platform. NO travel agency license for now.
