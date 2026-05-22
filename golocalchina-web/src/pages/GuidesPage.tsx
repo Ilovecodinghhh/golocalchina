@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SearchFilters from '../components/SearchFilters';
 import GuideCard from '../components/GuideCard';
+import AdBanner from '../components/AdBanner';
 import type { Guide, SearchParams } from '../services/api';
 
 // Mock data for development (replace with guideApi.search() when backend is running)
@@ -85,6 +86,8 @@ export default function GuidesPage() {
 
       <SearchFilters filters={filters} onChange={setFilters} onSearch={doSearch} />
 
+      <AdBanner slot="top" />
+
       {total > 0 && (
         <Typography variant="body1" sx={{ mb: 2 }}>
           {t('search.results', { count: total })}
@@ -108,6 +111,7 @@ export default function GuidesPage() {
           <Pagination count={Math.ceil(total / 20)} color="primary" />
         </Box>
       )}
+      <AdBanner slot="bottom" />
     </Container>
   );
 }

@@ -23,5 +23,14 @@
     "per_half_day": "/ 半天",
     "per_day": "/ 天",
     "per_hour": "/ 小时"
+  },
+  "payment": {
+    "direct_title": "直接向导游付款",
+    "direct_desc": "付款在服务时由您与导游直接安排。",
+    "methods": "接受的支付方式：",
+    "alipay": "支付宝",
+    "wechat": "微信支付",
+    "cash": "现金（人民币或美元）",
+    "note": "提示：大多数导游接受支付宝——扫码即可支付。无平台费用。"
   }
 }

@@ -78,5 +78,11 @@ class GuideProfile(Base, TimestampMixin):
     default_rate_cny: Mapped[float] = mapped_column(Numeric(12, 2), default=0)
     rating_avg: Mapped[float] = mapped_column(Numeric(3, 2), default=0)
     rating_count: Mapped[int] = mapped_column(Integer, default=0)
+    # Guide's payment info (tourist pays guide directly)
+    alipay_qr_url: Mapped[Optional[str]] = mapped_column(Text)       # Guide's Alipay QR image URL
+    wechat_pay_qr_url: Mapped[Optional[str]] = mapped_column(Text)   # Guide's WeChat Pay QR image URL
+    accepts_cash: Mapped[bool] = mapped_column(default=True)          # Accepts cash CNY/USD
+    payment_note: Mapped[Optional[str]] = mapped_column(String(255))  # e.g. "I accept USD cash or Alipay"
+
 
     user: Mapped["User"] = relationship(back_populates="guide_profile")

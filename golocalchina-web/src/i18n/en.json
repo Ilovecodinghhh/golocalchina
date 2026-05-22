@@ -33,7 +33,9 @@
     "connect": "Request to Connect",
     "connect_note": "You are requesting to connect with an independent guide. GoLocalChina facilitates this connection but is not a party to the service agreement between you and the guide.",
     "listings": "Service Offerings",
-    "about": "About This Guide"
+    "about": "About This Guide",
+    "payment_methods": "Payment Methods",
+    "scan_to_pay": "Scan to pay"
   },
   "cities": {
     "Beijing": "Beijing",
@@ -50,5 +52,14 @@
     "art": "Art & Museums",
     "family": "Family Friendly",
     "shopping": "Shopping"
+  },
+  "payment": {
+    "direct_title": "Pay Your Guide Directly",
+    "direct_desc": "Payment is arranged directly between you and the guide at the time of service.",
+    "methods": "Accepted payment methods:",
+    "alipay": "Alipay",
+    "wechat": "WeChat Pay",
+    "cash": "Cash (CNY or USD)",
+    "note": "Tip: Most guides accept Alipay — just scan their QR code. No platform fees."
   }
 }

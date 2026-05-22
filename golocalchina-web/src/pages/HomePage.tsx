@@ -12,7 +12,7 @@ export default function HomePage() {
   const features = [
     { icon: <VerifiedIcon sx={{ fontSize: 48 }} />, title: 'Verified Guides', desc: 'Every guide holds a valid 导游证 (Tour Guide License) verified by us.' },
     { icon: <TranslateIcon sx={{ fontSize: 48 }} />, title: 'Auto-Translation', desc: 'Chat with your guide in your language — messages are translated in real time.' },
-    { icon: <PaymentIcon sx={{ fontSize: 48 }} />, title: 'Pay Your Way', desc: 'Pay in USD, EUR, GBP, or AUD. Your guide receives CNY instantly.' },
+    { icon: <PaymentIcon sx={{ fontSize: 48 }} />, title: 'Free to Connect', desc: 'No platform fees. Pay your guide directly — cash, Alipay, or WeChat Pay.' },
   ];
 
   const cities = [
