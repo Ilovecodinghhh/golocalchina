@@ -2,7 +2,6 @@
 import os
 from pydantic_settings import BaseSettings
 
-# Railway provides a writable /tmp — use it for SQLite
 _default_db = "sqlite+aiosqlite:///./golocalchina.db"
 if os.environ.get("RAILWAY_ENVIRONMENT"):
     _default_db = "sqlite+aiosqlite:////tmp/golocalchina.db"
@@ -15,7 +14,7 @@ class Settings(BaseSettings):
     jwt_access_token_expire_minutes: int = 30
     jwt_refresh_token_expire_days: int = 7
     platform_name: str = "GoLocalChina"
-    cors_origins: str = "*"
+    cors_origins: str = "https://golocalchina.vercel.app,http://localhost:3000"
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
