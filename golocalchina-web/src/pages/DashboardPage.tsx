@@ -25,21 +25,15 @@ export default function DashboardPage() {
   const [newListingOpen, setNewListingOpen] = useState(false);
   const [newListing, setNewListing] = useState({ title: '', summary: '', description_md: '', city: 'Beijing', price_amount: 500, price_unit: 'per_half_day', cover_image_url: '', languages: 'en,zh' });
 
-  useEffect(() => {
-    const stored = localStorage.getItem('glc_user');
-    if (!stored) { navigate('/login'); return; }
-    const u = JSON.parse(stored);
-    setUser(u);
-    loadProfile(u.id);
-    loadRequests(u.id, u.role);
-    if (u.role === 'guide') loadListings(u.id);
-  }, [navigate]);
-
   const loadRequests = async (userId: string, role: string) => {
     try {
+      console.log('[Dashboard] Loading requests for', userId, role);
       const res = await api.get(\`/service-requests/mine?user_id=\${userId}&role=\${role}\`);
+      console.log('[Dashboard] Got requests:', res.data);
       setRequests(res.data);
-    } catch {}
+    } catch (err) {
+      console.error('[Dashboard] Failed to load requests:', err);
+    }
   };
 
   const loadProfile = async (userId: string) => {
@@ -59,6 +53,16 @@ export default function DashboardPage() {
       setListings(res.data);
     } catch {}
   };
+
+  useEffect(() => {
+    const stored = localStorage.getItem('glc_user');
+    if (!stored) { navigate('/login'); return; }
+    const u = JSON.parse(stored);
+    setUser(u);
+    loadProfile(u.id);
+    loadRequests(u.id, u.role);
+    if (u.role === 'guide') loadListings(u.id);
+  }, [navigate]);
 
   const saveProfile = async () => {
     setSaveMsg('');
@@ -139,13 +143,18 @@ export default function DashboardPage() {
         </Box>
       </Paper>
 
-      <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3, '& .Mui-selected': { color: '#DC2626' }, '& .MuiTabs-indicator': { bgcolor: '#DC2626' } }}>
-        {user.role === 'guide' && <Tab label="My Listings" />}
-        {user.role === 'guide' && <Tab label="Requests" />}
-        {user.role === 'guide' && <Tab label="Profile" />}
-        {user.role === 'tourist' && <Tab label="My Requests" />}
-        {user.role === 'tourist' && <Tab label="Profile" />}
-      </Tabs>
+      {user.role === 'guide' ? (
+        <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3, '& .Mui-selected': { color: '#DC2626' }, '& .MuiTabs-indicator': { bgcolor: '#DC2626' } }}>
+          <Tab label="My Listings" />
+          <Tab label="Requests" />
+          <Tab label="Profile" />
+        </Tabs>
+      ) : (
+        <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3, '& .Mui-selected': { color: '#DC2626' }, '& .MuiTabs-indicator': { bgcolor: '#DC2626' } }}>
+          <Tab label="My Requests" />
+          <Tab label="Profile" />
+        </Tabs>
+      )}
 
       {/* GUIDE: Listings tab */}
       {user.role === 'guide' && tab === 0 && (

@@ -1,11 +1,6 @@
 {
   "issues": [
     {
-      "severity": "major",
-      "description": "Hero background images not rendering",
-      "screenshot": null
-    },
-    {
       "severity": "minor",
       "description": "No Requests tab found for guide",
       "screenshot": null
@@ -16,6 +11,6 @@
       "screenshot": null
     }
   ],
-  "total": 3,
+  "total": 2,
   "screenshots": 28
 }
