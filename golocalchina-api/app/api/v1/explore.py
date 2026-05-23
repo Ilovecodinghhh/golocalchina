@@ -81,3 +81,38 @@ async def search_listings(
     page_listings = listings_out[start:start + per_page]
 
     return {"listings": page_listings, "total": total, "page": page, "per_page": per_page}
+
+
+@router.get("/listings/{listing_id}")
+async def get_listing_detail(listing_id: str, db: AsyncSession = Depends(get_db)):
+    """Get a single listing with guide info."""
+    result = await db.execute(
+        select(GuideListing).where(GuideListing.id == listing_id)
+    )
+    listing = result.scalar_one_or_none()
+    if not listing:
+        return {"error": "not_found"}
+
+    gp_result = await db.execute(
+        select(GuideProfile).where(GuideProfile.user_id == listing.guide_user_id)
+    )
+    guide = gp_result.scalar_one_or_none()
+
+    return {
+        "id": listing.id, "title": listing.title, "summary": listing.summary,
+        "description_md": listing.description_md, "city": listing.city,
+        "price_amount": float(listing.price_amount), "price_currency": listing.price_currency,
+        "price_unit": listing.price_unit, "cover_image_url": listing.cover_image_url,
+        "languages": listing.languages if isinstance(listing.languages, list) else [],
+        "guide": {
+            "user_id": guide.user_id if guide else "", "display_name": guide.display_name if guide else "Guide",
+            "bio": guide.bio if guide else "", "languages": guide.languages if guide and isinstance(guide.languages, list) else [],
+            "service_cities": guide.service_cities if guide and isinstance(guide.service_cities, list) else [],
+            "specialties": guide.specialties if guide and isinstance(guide.specialties, list) else [],
+            "rating_avg": float(guide.rating_avg or 0) if guide else 0,
+            "rating_count": guide.rating_count or 0 if guide else 0,
+            "is_certified": bool(guide and guide.guide_license_no),
+            "accepts_cash": guide.accepts_cash if guide else True,
+            "payment_note": guide.payment_note if guide else "",
+        } if guide else {"user_id": "", "display_name": "Guide", "bio": "", "languages": [], "service_cities": [], "specialties": [], "rating_avg": 0, "rating_count": 0, "is_certified": False, "accepts_cash": True, "payment_note": ""},
+    }

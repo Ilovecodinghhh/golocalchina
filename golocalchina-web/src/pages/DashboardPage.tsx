@@ -108,6 +108,7 @@ export default function DashboardPage() {
       setListingError('');
       setNewListing({ title: '', summary: '', description_md: '', city: 'Beijing', price_amount: 500, price_unit: 'per_half_day', cover_image_url: '', languages: 'en,zh' });
       loadListings(user.id);
+      setSaveMsg('Listing published! It will appear on the Guides page.');
     } catch (err: any) {
       const detail = err?.response?.data?.detail;
       if (Array.isArray(detail)) {

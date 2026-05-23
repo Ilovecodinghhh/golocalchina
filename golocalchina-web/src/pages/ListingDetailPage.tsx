@@ -27,10 +27,10 @@ export default function ListingDetailPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        // Fetch all listings and find the one we need
-        const res = await api.get('/explore/listings?per_page=100');
-        const found = (res.data.listings || []).find((l: any) => l.id === id);
-        setListing(found || null);
+        const res = await api.get('/explore/listings/' + id);
+        if (res.data && !res.data.error) {
+          setListing(res.data);
+        }
       } catch {}
       setLoading(false);
     };
