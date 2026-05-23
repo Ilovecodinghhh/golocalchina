@@ -1,0 +1,226 @@
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import {
+  Container, Typography, Box, Grid, Paper, Chip, Rating, Button,
+  TextField, Dialog, DialogTitle, DialogContent, DialogActions, Alert
+} from '@mui/material';
+import VerifiedIcon from '@mui/icons-material/Verified';
+import PlaceIcon from '@mui/icons-material/Place';
+import PaymentsIcon from '@mui/icons-material/Payments';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import { useTranslation } from 'react-i18next';
+import api from '../services/api';
+import AdBanner from '../components/AdBanner';
+
+const DEFAULT_COVER = 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=1920&q=80';
+
+export default function ListingDetailPage() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  const [listing, setListing] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [connectOpen, setConnectOpen] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        // Fetch all listings and find the one we need
+        const res = await api.get('/explore/listings?per_page=100');
+        const found = (res.data.listings || []).find((l: any) => l.id === id);
+        setListing(found || null);
+      } catch {}
+      setLoading(false);
+    };
+    load();
+  }, [id]);
+
+  const sendRequest = async () => {
+    const stored = localStorage.getItem('glc_user');
+    if (!stored) { navigate('/login'); return; }
+    const user = JSON.parse(stored);
+    const dateEl = document.querySelector('input[type="date"]') as HTMLInputElement;
+    const sizeEl = document.querySelectorAll('input[type="number"]')[0] as HTMLInputElement;
+    const notesEl = document.querySelector('textarea') as HTMLTextAreaElement;
+
+    setSending(true);
+    try {
+      await api.post('/service-requests?tourist_user_id=' + user.id, {
+        guide_user_id: listing.guide.user_id,
+        service_date: dateEl?.value || new Date().toISOString().split('T')[0],
+        party_size: parseInt(sizeEl?.value || '1'),
+        language: 'en',
+        tourist_notes: notesEl?.value || '',
+        quoted_amount: listing.price_amount,
+        quoted_currency: listing.price_currency,
+      });
+      setSent(true);
+    } catch {
+      alert('Failed to send request. Make sure you are logged in.');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  if (loading) return <Container sx={{ py: 8, textAlign: 'center' }}><Typography>Loading...</Typography></Container>;
+  if (!listing) return <Container sx={{ py: 8, textAlign: 'center' }}><Typography>Listing not found.</Typography></Container>;
+
+  const guide = listing.guide || {};
+
+  return (
+    <Box>
+      {/* Hero cover image */}
+      <Box sx={{
+        height: { xs: 300, md: 450 }, position: 'relative',
+        backgroundImage: 'url(' + (listing.cover_image_url || DEFAULT_COVER) + ')',
+        backgroundSize: 'cover', backgroundPosition: 'center',
+      }}>
+        <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 50%)' }} />
+        <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', pb: 4 }}>
+          <Chip icon={<PlaceIcon />} label={listing.city} sx={{ bgcolor: 'rgba(255,255,255,0.9)', mb: 1, width: 'fit-content' }} />
+          <Typography variant="h3" sx={{ color: 'white', fontWeight: 800, textShadow: '2px 2px 8px rgba(0,0,0,0.5)', fontSize: { xs: '1.8rem', md: '2.5rem' } }}>
+            {listing.title}
+          </Typography>
+        </Container>
+      </Box>
+
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Grid container spacing={4}>
+          {/* Left: listing details */}
+          <Grid item xs={12} md={8}>
+            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>About This Experience</Typography>
+            <Typography variant="body1" sx={{ lineHeight: 1.8, whiteSpace: 'pre-line', mb: 4 }}>
+              {listing.summary}
+            </Typography>
+
+            <Paper variant="outlined" sx={{ p: 3, mb: 4, borderRadius: 3 }}>
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Full Details</Typography>
+              <Typography variant="body1" sx={{ lineHeight: 1.8, whiteSpace: 'pre-line', color: 'text.secondary' }}>
+                {listing.description_md || listing.summary}
+              </Typography>
+            </Paper>
+
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3 }}>
+              {(listing.languages || []).map((l: string) => (
+                <Chip key={l} label={'Language: ' + l.toUpperCase()} variant="outlined" />
+              ))}
+              <Chip label={listing.price_unit === 'per_day' ? 'Full Day' : listing.price_unit === 'per_hour' ? 'Hourly' : 'Half Day'} variant="outlined" />
+            </Box>
+
+            <AdBanner slot="in-feed" />
+          </Grid>
+
+          {/* Right: guide info + booking */}
+          <Grid item xs={12} md={4}>
+            {/* Price card */}
+            <Paper sx={{ p: 3, mb: 3, borderRadius: 3, border: '2px solid #DC2626' }}>
+              <Typography variant="h4" sx={{ fontWeight: 800, color: '#DC2626', mb: 0.5 }}>
+                ¥{listing.price_amount}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                {t('search.price_set_by_guide')} · {listing.price_unit === 'per_day' ? 'per day' : listing.price_unit === 'per_hour' ? 'per hour' : 'per half day'}
+              </Typography>
+              <Button
+                fullWidth variant="contained" size="large"
+                onClick={() => setConnectOpen(true)}
+                sx={{ bgcolor: '#DC2626', py: 1.5, fontSize: '1rem', '&:hover': { bgcolor: '#B91C1C' } }}
+              >
+                {t('guide.connect')}
+              </Button>
+            </Paper>
+
+            {/* Guide card */}
+            <Paper sx={{ p: 3, mb: 3, borderRadius: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                <Box sx={{
+                  width: 56, height: 56, borderRadius: '50%', bgcolor: '#DC2626', color: 'white',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 20,
+                }}>
+                  {(guide.display_name || '?').charAt(0)}
+                </Box>
+                <Box>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>{guide.display_name}</Typography>
+                  {guide.is_certified && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <VerifiedIcon sx={{ fontSize: 16, color: '#DC2626' }} />
+                      <Typography variant="caption" sx={{ color: '#DC2626' }}>Certified Guide</Typography>
+                    </Box>
+                  )}
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <Rating value={guide.rating_avg || 0} precision={0.1} size="small" readOnly />
+                <Typography variant="body2" sx={{ ml: 1 }}>({guide.rating_count || 0} reviews)</Typography>
+              </Box>
+              {guide.bio && (
+                <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
+                  {guide.bio}
+                </Typography>
+              )}
+            </Paper>
+
+            {/* Payment info */}
+            <Paper sx={{ p: 3, borderRadius: 3 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1.5, display: 'flex', alignItems: 'center' }}>
+                <PaymentsIcon sx={{ mr: 1 }} /> Payment
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <AccountBalanceWalletIcon color="action" />
+                <Typography variant="body2">Pay your guide directly when you meet</Typography>
+              </Box>
+              {guide.payment_note && (
+                <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic', mt: 1 }}>
+                  "{guide.payment_note}"
+                </Typography>
+              )}
+              <Alert severity="info" sx={{ mt: 2, fontSize: '0.75rem' }}>
+                {t('payment.note')}
+              </Alert>
+            </Paper>
+
+            <AdBanner slot="sidebar" />
+          </Grid>
+        </Grid>
+      </Container>
+
+      {/* Connection request dialog */}
+      <Dialog open={connectOpen} onClose={() => setConnectOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>{t('guide.connect')}</DialogTitle>
+        <DialogContent>
+          {sent ? (
+            <Alert severity="success" sx={{ my: 2 }}>
+              Request sent! Check your dashboard for updates. The guide will respond soon.
+            </Alert>
+          ) : (
+            <>
+              <Alert severity="info" sx={{ mb: 2 }}>{t('guide.connect_note')}</Alert>
+              <Alert severity="success" sx={{ mb: 2 }} icon={<PaymentsIcon />}>{t('payment.direct_desc')}</Alert>
+              <TextField fullWidth label="Date" type="date" InputLabelProps={{ shrink: true }} sx={{ mb: 2, mt: 1 }} />
+              <TextField fullWidth label="Group size" type="number" defaultValue={1} inputProps={{ min: 1, max: 30 }} sx={{ mb: 2 }} />
+              <TextField fullWidth label="Message to the guide (optional)" multiline rows={3}
+                placeholder="Tell them what you're interested in, any special requests..." />
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          {sent ? (
+            <>
+              <Button onClick={() => navigate('/dashboard')}>Go to Dashboard</Button>
+              <Button onClick={() => { setConnectOpen(false); setSent(false); }}>Close</Button>
+            </>
+          ) : (
+            <>
+              <Button onClick={() => setConnectOpen(false)}>Cancel</Button>
+              <Button variant="contained" onClick={sendRequest} disabled={sending}
+                sx={{ bgcolor: '#DC2626', '&:hover': { bgcolor: '#B91C1C' } }}>
+                {sending ? 'Sending...' : 'Send Request'}
+              </Button>
+            </>
+          )}
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+}

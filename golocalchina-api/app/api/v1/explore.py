@@ -57,6 +57,7 @@ async def search_listings(
             "price_currency": listing.price_currency,
             "price_unit": listing.price_unit,
             "cover_image_url": listing.cover_image_url,
+            "description_md": listing.description_md,
             "languages": listing.languages or [],
             "tags": listing.tags or [],
             "guide": {
