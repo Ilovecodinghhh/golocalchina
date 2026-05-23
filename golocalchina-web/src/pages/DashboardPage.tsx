@@ -20,6 +20,7 @@ export default function DashboardPage() {
   const [tab, setTab] = useState(0);
   const [profile, setProfile] = useState<any>({});
   const [listings, setListings] = useState<any[]>([]);
+  const [requests, setRequests] = useState<any[]>([]);
   const [saveMsg, setSaveMsg] = useState('');
   const [newListingOpen, setNewListingOpen] = useState(false);
   const [newListing, setNewListing] = useState({ title: '', summary: '', description_md: '', city: 'Beijing', price_amount: 500, price_unit: 'per_half_day', cover_image_url: '', languages: 'en,zh' });
@@ -30,8 +31,16 @@ export default function DashboardPage() {
     const u = JSON.parse(stored);
     setUser(u);
     loadProfile(u.id);
+    loadRequests(u.id, u.role);
     if (u.role === 'guide') loadListings(u.id);
   }, [navigate]);
+
+  const loadRequests = async (userId: string, role: string) => {
+    try {
+      const res = await api.get(\`/service-requests/mine?user_id=\${userId}&role=\${role}\`);
+      setRequests(res.data);
+    } catch {}
+  };
 
   const loadProfile = async (userId: string) => {
     try {
@@ -128,7 +137,7 @@ export default function DashboardPage() {
 
       <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3, '& .Mui-selected': { color: '#DC2626' }, '& .MuiTabs-indicator': { bgcolor: '#DC2626' } }}>
         {user.role === 'guide'
-          ? [<Tab key={0} label="My Listings" />, <Tab key={1} label="Profile" />]
+          ? [<Tab key={0} label="My Listings" />, <Tab key={1} label="Requests" />, <Tab key={2} label="Profile" />]
           : [<Tab key={0} label="My Requests" />, <Tab key={1} label="Profile" />]}
       </Tabs>
 
@@ -159,13 +168,72 @@ export default function DashboardPage() {
 
       {/* TOURIST: Requests tab */}
       {user.role === 'tourist' && tab === 0 && (
-        <Alert severity="info" action={<Button color="inherit" size="small" onClick={() => navigate('/guides')}>Browse Guides</Button>}>
-          No requests yet. Find a guide and start planning!
-        </Alert>
+        <Box>
+          <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Your Connection Requests</Typography>
+          {requests.length === 0 ? (
+            <Alert severity="info" action={<Button color="inherit" size="small" onClick={() => navigate('/guides')}>Browse Guides</Button>}>
+              No requests yet. Find a guide and start planning!
+            </Alert>
+          ) : (
+            requests.map((r: any) => (
+              <Paper key={r.id} sx={{ p: 3, mb: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Box>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                      {r.service_date} · {r.party_size} {r.party_size > 1 ? 'people' : 'person'}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      ¥{r.quoted_amount} {r.quoted_currency} · Language: {r.language}
+                    </Typography>
+                    {r.tourist_notes && <Typography variant="body2" sx={{ mt: 0.5, fontStyle: 'italic' }}>"{r.tourist_notes}"</Typography>}
+                  </Box>
+                  <Chip label={r.status} color={r.status === 'accepted' ? 'success' : r.status === 'pending' ? 'warning' : 'default'} />
+                </Box>
+              </Paper>
+            ))
+          )}
+        </Box>
+      )}
+
+      {/* GUIDE: Requests tab */}
+      {user.role === 'guide' && tab === 1 && (
+        <Box>
+          <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Connection Requests from Tourists</Typography>
+          {requests.length === 0 ? (
+            <Alert severity="info">No requests yet. Once tourists find your listings, their requests appear here.</Alert>
+          ) : (
+            requests.map((r: any) => (
+              <Paper key={r.id} sx={{ p: 3, mb: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Box>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{r.service_date} · {r.party_size} {r.party_size > 1 ? 'people' : 'person'}</Typography>
+                    <Typography variant="body2" color="text.secondary">¥{r.quoted_amount} · {r.language}</Typography>
+                    {r.tourist_notes && <Typography variant="body2" sx={{ mt: 0.5, fontStyle: 'italic' }}>"{r.tourist_notes}"</Typography>}
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <Chip label={r.status} color={r.status === 'accepted' ? 'success' : r.status === 'pending' ? 'warning' : 'default'} />
+                    {r.status === 'pending' && (
+                      <>
+                        <Button size="small" variant="contained" color="success"
+                          onClick={async () => { await api.put(\`/service-requests/\${r.id}/accept?guide_user_id=\${user.id}\`); loadRequests(user.id, user.role); }}>
+                          Accept
+                        </Button>
+                        <Button size="small" variant="outlined" color="error"
+                          onClick={async () => { await api.put(\`/service-requests/\${r.id}/decline?guide_user_id=\${user.id}\`); loadRequests(user.id, user.role); }}>
+                          Decline
+                        </Button>
+                      </>
+                    )}
+                  </Box>
+                </Box>
+              </Paper>
+            ))
+          )}
+        </Box>
       )}
 
       {/* PROFILE tab (both roles) */}
-      {tab === 1 && (
+      {((user.role === 'guide' && tab === 2) || (user.role === 'tourist' && tab === 1)) && (
         <Paper sx={{ p: 4, borderRadius: 3 }}>
           <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Edit Profile</Typography>
           {saveMsg && <Alert severity={saveMsg.startsWith('✅') ? 'success' : 'error'} sx={{ mb: 2 }}>{saveMsg}</Alert>}

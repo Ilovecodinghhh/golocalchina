@@ -17,7 +17,7 @@ const MOCK_GUIDES = [
     featured_trip: {
       title: 'Hidden Hutongs & Imperial Secrets — Half Day',
       highlight: 'I\'ll take you through alleys that haven\'t changed in 600 years. We\'ll drink tea in a courtyard home, eat jianbing from the best street vendor in Dongcheng, and I\'ll tell you the stories that guidebooks don\'t have.',
-      cover_url: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=600&q=80',
+      cover_url: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=600&q=80',
     },
   },
   {
@@ -29,7 +29,7 @@ const MOCK_GUIDES = [
     featured_trip: {
       title: 'Shanghai Through the Lens — Full Day Photo Walk',
       highlight: 'From the neon of Nanjing Road to the quiet lanes of the French Concession. I know the light, the angles, and the moments. You\'ll leave with photos that make your friends jealous.',
-      cover_url: 'https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=600&q=80',
+      cover_url: 'https://images.unsplash.com/photo-1573455494060-c5595004fb6c?w=600&q=80',
     },
   },
   {
@@ -53,7 +53,7 @@ const MOCK_GUIDES = [
     featured_trip: {
       title: 'Pandas, Hot Pot & Sichuan Spice — Full Day',
       highlight: 'Morning with the giant pandas (I know the quiet paths), afternoon learning to cook mapo tofu with my grandmother, evening at the most authentic hot pot spot in Chengdu. Your taste buds will never be the same.',
-      cover_url: 'https://images.unsplash.com/photo-1528164344705-47542687000d?w=600&q=80',
+      cover_url: 'https://images.unsplash.com/photo-1598887142487-3c854d51eabb?w=600&q=80',
     },
   },
   {
@@ -65,7 +65,7 @@ const MOCK_GUIDES = [
     featured_trip: {
       title: 'Beijing After Midnight — Night Food & Bar Crawl',
       highlight: 'Forget the tourist restaurants. I\'ll take you to the lamb skewer alley at 11pm, the hidden speakeasy behind a bookshelf, and the 3am hand-pulled noodle shop where taxi drivers eat. This is my Beijing.',
-      cover_url: 'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=600&q=80',
+      cover_url: 'https://images.unsplash.com/photo-1470004914212-05527e49370b?w=600&q=80',
     },
   },
   {
@@ -77,7 +77,7 @@ const MOCK_GUIDES = [
     featured_trip: {
       title: 'From Opium Wars to Skyscrapers — Shanghai\'s Wild History',
       highlight: 'I\'ll walk you through 150 years in one day. The old Jewish quarter, the underground jazz scene of the 1930s, the revolutionary sites, and the architect who designed half of the Bund. History is never boring when I tell it.',
-      cover_url: 'https://images.unsplash.com/photo-1567789884554-0b844b597180?w=600&q=80',
+      cover_url: 'https://images.unsplash.com/photo-1521093470119-a3acdc43374a?w=600&q=80',
     },
   },
 ];

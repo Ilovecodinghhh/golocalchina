@@ -190,7 +190,28 @@ export default function GuideDetailPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setConnectOpen(false)}>Cancel</Button>
-          <Button variant="contained" sx={{ bgcolor: '#1a472a' }} onClick={() => setConnectOpen(false)}>
+          <Button variant="contained" sx={{ bgcolor: '#1a472a' }} onClick={async () => {
+              const stored = localStorage.getItem('glc_user');
+              if (!stored) { window.location.href = '/login'; return; }
+              const user = JSON.parse(stored);
+              const dateEl = document.querySelector('input[type="date"]') as HTMLInputElement;
+              const sizeEl = document.querySelector('input[type="number"]') as HTMLInputElement;
+              const notesEl = document.querySelector('textarea') as HTMLTextAreaElement;
+              try {
+                const { default: api } = await import('../services/api');
+                await api.post(`/service-requests?tourist_user_id=${user.id}`, {
+                  listing_id: selectedListing,
+                  service_date: dateEl?.value || new Date().toISOString().split('T')[0],
+                  party_size: parseInt(sizeEl?.value || '1'),
+                  language: 'en',
+                  tourist_notes: notesEl?.value || '',
+                });
+                setConnectOpen(false);
+                alert('Request sent! Check your dashboard for updates.');
+              } catch (err: any) {
+                alert(err?.response?.data?.detail || 'Failed to send request. Make sure you are logged in.');
+              }
+            }}>
             Send Request
           </Button>
         </DialogActions>
