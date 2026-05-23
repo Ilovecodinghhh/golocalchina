@@ -91,7 +91,7 @@ export default function RegisterPage() {
       const data = await api.post('/auth/register', { email, password, role, display_name: name, country, preferred_currency: currency });
       localStorage.setItem('glc_token', data.data.access_token);
       localStorage.setItem('glc_user', JSON.stringify({ id: data.data.user_id, role: data.data.role, display_name: name, email, country, currency }));
-      navigate('/dashboard');
+      window.location.href = '/dashboard';  // Force full navigation
     } catch (err: any) {
       setError(err?.response?.data?.detail || 'Registration failed.');
     } finally { setLoading(false); }

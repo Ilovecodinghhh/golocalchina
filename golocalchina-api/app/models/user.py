@@ -63,8 +63,8 @@ class GuideProfile(Base, TimestampMixin):
     user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), primary_key=True)
     legal_name: Mapped[str] = mapped_column(String(120), nullable=False)
     display_name: Mapped[str] = mapped_column(String(80), nullable=False)
-    guide_license_no: Mapped[str] = mapped_column(String(40), unique=True, nullable=False)
-    guide_license_issuer: Mapped[str] = mapped_column(String(120), nullable=False)
+    guide_license_no: Mapped[Optional[str]] = mapped_column(String(40), nullable=True)  # Optional — community guides don't have one
+    guide_license_issuer: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
     guide_license_expires_on: Mapped[Optional[str]] = mapped_column(String(10))
     kyc_status: Mapped[str] = mapped_column(String(20), default="unsubmitted")
     languages: Mapped[Optional[str]] = mapped_column(JSON, default=[])

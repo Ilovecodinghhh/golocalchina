@@ -46,7 +46,11 @@ export default function DashboardPage() {
     try {
       const res = await api.get(`/profile/me?user_id=${userId}`);
       setProfile(res.data);
-    } catch {}
+    } catch {
+      // Profile not found — use local storage data
+      const stored = localStorage.getItem('glc_user');
+      if (stored) setProfile(JSON.parse(stored));
+    }
   };
 
   const loadListings = async (userId: string) => {

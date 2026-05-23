@@ -1,0 +1,41 @@
+{
+  "issues": [
+    {
+      "severity": "major",
+      "description": "Hero background images not rendering",
+      "screenshot": null
+    },
+    {
+      "severity": "major",
+      "description": "After registration, not on dashboard. URL: https://golocalchina.vercel.app/register",
+      "screenshot": null
+    },
+    {
+      "severity": "critical",
+      "description": "Create New Listing button not found on guide dashboard",
+      "screenshot": null
+    },
+    {
+      "severity": "major",
+      "description": "Created listing does not appear in guide dashboard",
+      "screenshot": null
+    },
+    {
+      "severity": "minor",
+      "description": "No Requests tab found for guide",
+      "screenshot": null
+    },
+    {
+      "severity": "minor",
+      "description": "Console errors during guide flow: ['Failed to load resource: the server responded with a status of 500 ()']",
+      "screenshot": null
+    },
+    {
+      "severity": "major",
+      "description": "Sent request not visible in tourist dashboard",
+      "screenshot": null
+    }
+  ],
+  "total": 7,
+  "screenshots": 25
+}

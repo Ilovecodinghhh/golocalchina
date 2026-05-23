@@ -119,7 +119,7 @@ async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
         db.add(TouristProfile(user_id=user.id, display_name=req.display_name, nationality=req.country, preferred_currency=req.preferred_currency or "USD"))
     elif user.role == "guide":
         db.add(GuideProfile(user_id=user.id, legal_name=req.display_name, display_name=req.display_name,
-                            guide_license_no="NONE", guide_license_issuer="NOT_CERTIFIED"))
+                            guide_license_no=None, guide_license_issuer=None))
 
     await db.flush()
 
