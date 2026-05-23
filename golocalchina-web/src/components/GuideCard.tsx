@@ -6,6 +6,25 @@ import PersonIcon from '@mui/icons-material/Person';
 import PlaceIcon from '@mui/icons-material/Place';
 import type { Guide } from '../services/api';
 
+// Approximate FX rates (updated periodically — use API in production)
+const FX_RATES: Record<string, number> = {
+  USD: 0.14, EUR: 0.13, GBP: 0.11, AUD: 0.22, JPY: 21.5, KRW: 192, CAD: 0.19, CNY: 1,
+};
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  USD: '$', EUR: '€', GBP: '£', AUD: 'A$', JPY: '¥', KRW: '₩', CAD: 'C$', CNY: '¥',
+};
+function convertPrice(cny: number): string {
+  const stored = localStorage.getItem('glc_user');
+  if (!stored) return `¥${cny}`;
+  const { currency } = JSON.parse(stored);
+  if (!currency || currency === 'CNY') return `¥${cny}`;
+  const rate = FX_RATES[currency] || 1;
+  const sym = CURRENCY_SYMBOLS[currency] || currency;
+  const converted = Math.round(cny * rate);
+  return `${sym}${converted}`;
+}
+
+
 interface GuideWithExtras extends Guide {
   is_certified?: boolean;
   featured_trip?: {
@@ -60,7 +79,7 @@ export default function GuideCard({ guide }: Props) {
           bgcolor: '#DC2626', color: 'white', px: 1.5, py: 0.5, borderRadius: 2,
           fontWeight: 700, fontSize: '0.9rem',
         }}>
-          ¥{guide.default_rate_cny}
+          {convertPrice(guide.default_rate_cny)}
         </Box>
         {/* Certified badge */}
         {isCertified && (

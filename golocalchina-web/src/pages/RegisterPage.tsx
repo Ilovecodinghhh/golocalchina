@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import {
   Container, Paper, Typography, TextField, Button, Box, Alert,
-  ToggleButton, ToggleButtonGroup, Link as MuiLink, LinearProgress, Stepper, Step, StepLabel
+  ToggleButton, ToggleButtonGroup, Link as MuiLink, LinearProgress, Stepper, Step, StepLabel,
+  FormControl, InputLabel, Select, MenuItem
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -42,6 +43,8 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [role, setRole] = useState('tourist');
+  const [country, setCountry] = useState('');
+  const [currency, setCurrency] = useState('USD');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -85,9 +88,9 @@ export default function RegisterPage() {
     if (!name.trim()) { setError('Please enter your name.'); return; }
     setLoading(true);
     try {
-      const data = await api.post('/auth/register', { email, password, role, display_name: name });
+      const data = await api.post('/auth/register', { email, password, role, display_name: name, country, preferred_currency: currency });
       localStorage.setItem('glc_token', data.data.access_token);
-      localStorage.setItem('glc_user', JSON.stringify({ id: data.data.user_id, role: data.data.role, display_name: name, email }));
+      localStorage.setItem('glc_user', JSON.stringify({ id: data.data.user_id, role: data.data.role, display_name: name, email, country, currency }));
       navigate('/dashboard');
     } catch (err: any) {
       setError(err?.response?.data?.detail || 'Registration failed.');
@@ -194,6 +197,27 @@ export default function RegisterPage() {
                   🧭 {t('auth.guide_role')}
                 </ToggleButton>
               </ToggleButtonGroup>
+
+              {role === 'tourist' && (
+                <>
+                  <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel>Country</InputLabel>
+                    <Select value={country} label="Country" onChange={(e) => setCountry(e.target.value)}>
+                      {[['US','🇺🇸 United States'],['GB','🇬🇧 United Kingdom'],['AU','🇦🇺 Australia'],['CA','🇨🇦 Canada'],['DE','🇩🇪 Germany'],['FR','🇫🇷 France'],['JP','🇯🇵 Japan'],['KR','🇰🇷 South Korea'],['SG','🇸🇬 Singapore'],['OTHER','🌍 Other']].map(([code, label]) => (
+                        <MenuItem key={code} value={code}>{label}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel>Preferred Currency</InputLabel>
+                    <Select value={currency} label="Preferred Currency" onChange={(e) => setCurrency(e.target.value)}>
+                      {[['USD','$ US Dollar'],['EUR','€ Euro'],['GBP','£ British Pound'],['AUD','A$ Australian Dollar'],['JPY','¥ Japanese Yen'],['KRW','₩ Korean Won'],['CAD','C$ Canadian Dollar']].map(([code, label]) => (
+                        <MenuItem key={code} value={code}>{label}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </>
+              )}
 
               <Button fullWidth type="submit" variant="contained" disabled={loading || pwStrength.score < 4}
                 sx={{ bgcolor: '#DC2626', py: 1.5, '&:hover': { bgcolor: '#B91C1C' } }}>
