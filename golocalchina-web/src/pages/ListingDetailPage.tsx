@@ -65,7 +65,15 @@ export default function ListingDetailPage() {
   };
 
   if (loading) return <Container sx={{ py: 8, textAlign: 'center' }}><Typography>Loading...</Typography></Container>;
-  if (!listing) return <Container sx={{ py: 8, textAlign: 'center' }}><Typography>Listing not found.</Typography></Container>;
+  if (!listing) return (
+    <Container sx={{ py: 8, textAlign: 'center' }}>
+      <Typography variant="h5" sx={{ mb: 2 }}>This listing is no longer available.</Typography>
+      <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+        The guide may have removed it, or it may have expired. Browse other guides below.
+      </Typography>
+      <Button variant="contained" href="/guides" sx={{ bgcolor: '#DC2626' }}>Browse All Guides</Button>
+    </Container>
+  );
 
   const guide = listing.guide || {};
 
