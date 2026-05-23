@@ -15,6 +15,9 @@ from app.api.v1.explore import router as explore_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await create_tables()
+    # Auto-seed demo data if DB is empty (Railway wipes /tmp on redeploy)
+    from seed_on_start import seed
+    await seed()
     yield
 
 
