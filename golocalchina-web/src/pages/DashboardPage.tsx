@@ -89,7 +89,15 @@ export default function DashboardPage() {
     }
   };
 
+  const [listingError, setListingError] = useState('');
+
   const createListing = async () => {
+    setListingError('');
+    // Client-side validation with clear messages
+    if (newListing.title.length < 5) { setListingError('Title must be at least 5 characters.'); return; }
+    if (newListing.summary.length < 10) { setListingError('Summary must be at least 10 characters. Describe what travelers will experience.'); return; }
+    if (newListing.description_md.length < 20) { setListingError('Description must be at least 20 characters. Tell the full story of your trip.'); return; }
+    if (newListing.price_amount <= 0) { setListingError('Please set a price.'); return; }
     try {
       await api.post('/listings?guide_user_id=' + user.id, {
         ...newListing,
@@ -97,10 +105,16 @@ export default function DashboardPage() {
         price_amount: Number(newListing.price_amount),
       });
       setNewListingOpen(false);
+      setListingError('');
       setNewListing({ title: '', summary: '', description_md: '', city: 'Beijing', price_amount: 500, price_unit: 'per_half_day', cover_image_url: '', languages: 'en,zh' });
       loadListings(user.id);
     } catch (err: any) {
-      alert(err?.response?.data?.detail || 'Failed to create listing');
+      const detail = err?.response?.data?.detail;
+      if (Array.isArray(detail)) {
+        setListingError(detail.map((d: any) => d.msg).join('. '));
+      } else {
+        setListingError(detail || 'Failed to create listing. Please check all fields.');
+      }
     }
   };
 
@@ -311,12 +325,13 @@ export default function DashboardPage() {
       {/* New Listing Dialog */}
       <Dialog open={newListingOpen} onClose={() => setNewListingOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>Create New Listing</DialogTitle>
-        <DialogContent>
-          <TextField fullWidth label="Title" placeholder="e.g. Beijing Hutong Deep Dive — Half Day" sx={{ mt: 1, mb: 2 }}
+        <DialogContent sx={{ maxHeight: "70vh" }}>
+          {listingError && <Alert severity="error" sx={{ mb: 2 }}>{listingError}</Alert>}
+          <TextField fullWidth label="Title (min 5 chars)" placeholder="e.g. Beijing Hutong Deep Dive — Half Day" sx={{ mt: 1, mb: 2 }}
             value={newListing.title} onChange={(e) => setNewListing(p => ({ ...p, title: e.target.value }))} />
-          <TextField fullWidth label="Summary (short pitch)" placeholder="What will the traveler experience?" sx={{ mb: 2 }}
+          <TextField fullWidth label="Summary — short pitch (min 10 chars)" placeholder="What will the traveler experience?" helperText="A quick hook that makes travelers want to read more" sx={{ mb: 2 }}
             value={newListing.summary} onChange={(e) => setNewListing(p => ({ ...p, summary: e.target.value }))} multiline rows={2} />
-          <TextField fullWidth label="Full Description" placeholder="Tell the full story." sx={{ mb: 2 }}
+          <TextField fullWidth label="Full Description (min 20 chars)" placeholder="Tell the full story — paint a picture, share the details, make them feel it." helperText="The more detail you add, the more travelers will trust your trip" sx={{ mb: 2 }}
             value={newListing.description_md} onChange={(e) => setNewListing(p => ({ ...p, description_md: e.target.value }))} multiline rows={4} />
           <Grid container spacing={2}>
             <Grid item xs={6}>
