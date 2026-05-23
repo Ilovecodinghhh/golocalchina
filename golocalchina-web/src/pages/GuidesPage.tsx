@@ -17,7 +17,7 @@ const MOCK_GUIDES = [
     featured_trip: {
       title: 'Hidden Hutongs & Imperial Secrets — Half Day',
       highlight: 'I\'ll take you through alleys that haven\'t changed in 600 years. We\'ll drink tea in a courtyard home, eat jianbing from the best street vendor in Dongcheng, and I\'ll tell you the stories that guidebooks don\'t have.',
-      cover_url: 'https://images.unsplash.com/photo-1590417975608-07da4e8c1947?w=600&q=80',
+      cover_url: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=600&q=80',
     },
   },
   {
@@ -53,7 +53,7 @@ const MOCK_GUIDES = [
     featured_trip: {
       title: 'Pandas, Hot Pot & Sichuan Spice — Full Day',
       highlight: 'Morning with the giant pandas (I know the quiet paths), afternoon learning to cook mapo tofu with my grandmother, evening at the most authentic hot pot spot in Chengdu. Your taste buds will never be the same.',
-      cover_url: 'https://images.unsplash.com/photo-1580888227379-5e4317e81116?w=600&q=80',
+      cover_url: 'https://images.unsplash.com/photo-1528164344705-47542687000d?w=600&q=80',
     },
   },
   {
@@ -77,7 +77,7 @@ const MOCK_GUIDES = [
     featured_trip: {
       title: 'From Opium Wars to Skyscrapers — Shanghai\'s Wild History',
       highlight: 'I\'ll walk you through 150 years in one day. The old Jewish quarter, the underground jazz scene of the 1930s, the revolutionary sites, and the architect who designed half of the Bund. History is never boring when I tell it.',
-      cover_url: 'https://images.unsplash.com/photo-1474181628609-e5dfe8702e5e?w=600&q=80',
+      cover_url: 'https://images.unsplash.com/photo-1567789884554-0b844b597180?w=600&q=80',
     },
   },
 ];

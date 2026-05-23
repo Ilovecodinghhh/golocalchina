@@ -57,7 +57,7 @@ export default function RegisterPage() {
     if (!email.includes('@')) { setError('Please enter a valid email.'); return; }
     setLoading(true);
     try {
-      const res = await api.post('/api/v1/auth/send-code', { email });
+      const res = await api.post('/auth/send-code', { email });
       setDemoCode(res.data.demo_code); // MVP: show code (production: sent via email)
       setStep(1);
     } catch (err: any) {
@@ -70,7 +70,7 @@ export default function RegisterPage() {
     setError('');
     setLoading(true);
     try {
-      await api.post('/api/v1/auth/verify-code', { email, code: verificationCode });
+      await api.post('/auth/verify-code', { email, code: verificationCode });
       setStep(2);
     } catch (err: any) {
       setError(err?.response?.data?.detail || 'Invalid code.');
@@ -85,7 +85,7 @@ export default function RegisterPage() {
     if (!name.trim()) { setError('Please enter your name.'); return; }
     setLoading(true);
     try {
-      const data = await api.post('/api/v1/auth/register', { email, password, role, display_name: name });
+      const data = await api.post('/auth/register', { email, password, role, display_name: name });
       localStorage.setItem('glc_token', data.data.access_token);
       localStorage.setItem('glc_user', JSON.stringify({ id: data.data.user_id, role: data.data.role, display_name: name, email }));
       navigate('/dashboard');

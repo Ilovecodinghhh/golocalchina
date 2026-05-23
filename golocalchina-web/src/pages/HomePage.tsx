@@ -11,17 +11,17 @@ import ExploreIcon from '@mui/icons-material/Explore';
 const HERO_IMAGES = [
   'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=1920&q=80', // Great Wall
   'https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=1920&q=80', // Shanghai Bund
-  'https://images.unsplash.com/photo-1537531383496-773bedb67a2b?w=1920&q=80', // Guilin karst
-  'https://images.unsplash.com/photo-1590417975608-07da4e8c1947?w=1920&q=80', // Forbidden City
+  'https://images.unsplash.com/photo-1584646098378-0874589d76b1?w=1920&q=80', // Guilin karst
+  'https://images.unsplash.com/photo-1548013146-72479768bada?w=1920&q=80', // Forbidden City
   'https://images.unsplash.com/photo-1513415564515-763d91423bdd?w=1920&q=80', // Zhangjiajie
 ];
 
 const CITY_IMAGES: Record<string, { img: string; emoji: string; desc: string }> = {
-  Beijing: { img: 'https://images.unsplash.com/photo-1590417975608-07da4e8c1947?w=600&q=80', emoji: '🏛️', desc: 'Great Wall · Forbidden City · Hutongs' },
+  Beijing: { img: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=600&q=80', emoji: '🏛️', desc: 'Great Wall · Forbidden City · Hutongs' },
   Shanghai: { img: 'https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=600&q=80', emoji: '🌃', desc: 'The Bund · French Concession · Street Food' },
   "Xi'an": { img: 'https://images.unsplash.com/photo-1591017403286-fd8493524e1e?w=600&q=80', emoji: '⚔️', desc: 'Terracotta Warriors · City Wall · Muslim Quarter' },
-  Chengdu: { img: 'https://images.unsplash.com/photo-1580888227379-5e4317e81116?w=600&q=80', emoji: '🐼', desc: 'Giant Pandas · Sichuan Cuisine · Tea Houses' },
-  Guilin: { img: 'https://images.unsplash.com/photo-1537531383496-773bedb67a2b?w=600&q=80', emoji: '🏔️', desc: 'Li River · Karst Mountains · Rice Terraces' },
+  Chengdu: { img: 'https://images.unsplash.com/photo-1528164344705-47542687000d?w=600&q=80', emoji: '🐼', desc: 'Giant Pandas · Sichuan Cuisine · Tea Houses' },
+  Guilin: { img: 'https://images.unsplash.com/photo-1584646098378-0874589d76b1?w=600&q=80', emoji: '🏔️', desc: 'Li River · Karst Mountains · Rice Terraces' },
   Hangzhou: { img: 'https://images.unsplash.com/photo-1599571234909-29ed5d1321d6?w=600&q=80', emoji: '🍵', desc: 'West Lake · Dragon Well Tea · Silk Market' },
 };
 
