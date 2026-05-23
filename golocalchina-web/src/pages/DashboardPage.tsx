@@ -7,9 +7,7 @@ import {
 } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import api from '../services/api';
 
 const CITIES = ['Beijing', 'Shanghai', 'Xian', 'Chengdu', 'Guilin', 'Hangzhou'];
@@ -23,25 +21,26 @@ export default function DashboardPage() {
   const [requests, setRequests] = useState<any[]>([]);
   const [saveMsg, setSaveMsg] = useState('');
   const [newListingOpen, setNewListingOpen] = useState(false);
-  const [newListing, setNewListing] = useState({ title: '', summary: '', description_md: '', city: 'Beijing', price_amount: 500, price_unit: 'per_half_day', cover_image_url: '', languages: 'en,zh' });
+  const [newListing, setNewListing] = useState({
+    title: '', summary: '', description_md: '', city: 'Beijing',
+    price_amount: 500, price_unit: 'per_half_day', cover_image_url: '', languages: 'en,zh'
+  });
 
   const loadRequests = async (userId: string, role: string) => {
     try {
-      console.log('[Dashboard] Loading requests for', userId, role);
-      const res = await api.get(\`/service-requests/mine?user_id=\${userId}&role=\${role}\`);
-      console.log('[Dashboard] Got requests:', res.data);
+      const url = '/service-requests/mine?user_id=' + userId + '&role=' + role;
+      const res = await api.get(url);
       setRequests(res.data);
     } catch (err) {
-      console.error('[Dashboard] Failed to load requests:', err);
+      console.error('Failed to load requests:', err);
     }
   };
 
   const loadProfile = async (userId: string) => {
     try {
-      const res = await api.get(`/profile/me?user_id=${userId}`);
+      const res = await api.get('/profile/me?user_id=' + userId);
       setProfile(res.data);
     } catch {
-      // Profile not found — use local storage data
       const stored = localStorage.getItem('glc_user');
       if (stored) setProfile(JSON.parse(stored));
     }
@@ -49,7 +48,7 @@ export default function DashboardPage() {
 
   const loadListings = async (userId: string) => {
     try {
-      const res = await api.get(`/listings/mine?guide_user_id=${userId}`);
+      const res = await api.get('/listings/mine?guide_user_id=' + userId);
       setListings(res.data);
     } catch {}
   };
@@ -68,34 +67,31 @@ export default function DashboardPage() {
     setSaveMsg('');
     try {
       if (user.role === 'tourist') {
-        await api.put(`/profile/me/tourist?user_id=${user.id}`, {
+        await api.put('/profile/me/tourist?user_id=' + user.id, {
           display_name: profile.display_name,
           nationality: profile.nationality,
           preferred_currency: profile.preferred_currency,
         });
       } else {
-        await api.put(`/profile/me/guide?user_id=${user.id}`, {
-          display_name: profile.display_name,
-          bio: profile.bio,
+        await api.put('/profile/me/guide?user_id=' + user.id, {
+          display_name: profile.display_name, bio: profile.bio,
           languages: typeof profile.languages === 'string' ? profile.languages.split(',').map((s: string) => s.trim()) : profile.languages,
           service_cities: typeof profile.service_cities === 'string' ? profile.service_cities.split(',').map((s: string) => s.trim()) : profile.service_cities,
           default_rate_cny: profile.default_rate_cny,
-          alipay_qr_url: profile.alipay_qr_url,
-          wechat_pay_qr_url: profile.wechat_pay_qr_url,
+          alipay_qr_url: profile.alipay_qr_url, wechat_pay_qr_url: profile.wechat_pay_qr_url,
           payment_note: profile.payment_note,
         });
       }
-      // Update local storage
       localStorage.setItem('glc_user', JSON.stringify({ ...user, display_name: profile.display_name, email: profile.email }));
-      setSaveMsg('✅ Profile saved!');
+      setSaveMsg('Profile saved!');
     } catch (err: any) {
-      setSaveMsg('❌ ' + (err?.response?.data?.detail || 'Failed to save'));
+      setSaveMsg('Failed: ' + (err?.response?.data?.detail || 'Unknown error'));
     }
   };
 
   const createListing = async () => {
     try {
-      await api.post(`/listings?guide_user_id=${user.id}`, {
+      await api.post('/listings?guide_user_id=' + user.id, {
         ...newListing,
         languages: newListing.languages.split(',').map(s => s.trim()),
         price_amount: Number(newListing.price_amount),
@@ -111,8 +107,22 @@ export default function DashboardPage() {
   const deleteListing = async (id: string) => {
     if (!confirm('Delete this listing?')) return;
     try {
-      await api.delete(`/listings/${id}?guide_user_id=${user.id}`);
+      await api.delete('/listings/' + id + '?guide_user_id=' + user.id);
       loadListings(user.id);
+    } catch {}
+  };
+
+  const acceptRequest = async (requestId: string) => {
+    try {
+      await api.put('/service-requests/' + requestId + '/accept?guide_user_id=' + user.id);
+      loadRequests(user.id, user.role);
+    } catch {}
+  };
+
+  const declineRequest = async (requestId: string) => {
+    try {
+      await api.put('/service-requests/' + requestId + '/decline?guide_user_id=' + user.id);
+      loadRequests(user.id, user.role);
     } catch {}
   };
 
@@ -124,6 +134,10 @@ export default function DashboardPage() {
 
   if (!user) return null;
   const up = (field: string, value: any) => setProfile((p: any) => ({ ...p, [field]: value }));
+
+  const guideTabs = ['My Listings', 'Requests', 'Profile'];
+  const touristTabs = ['My Requests', 'Profile'];
+  const tabLabels = user.role === 'guide' ? guideTabs : touristTabs;
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -143,20 +157,12 @@ export default function DashboardPage() {
         </Box>
       </Paper>
 
-      {user.role === 'guide' ? (
-        <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3, '& .Mui-selected': { color: '#DC2626' }, '& .MuiTabs-indicator': { bgcolor: '#DC2626' } }}>
-          <Tab label="My Listings" />
-          <Tab label="Requests" />
-          <Tab label="Profile" />
-        </Tabs>
-      ) : (
-        <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3, '& .Mui-selected': { color: '#DC2626' }, '& .MuiTabs-indicator': { bgcolor: '#DC2626' } }}>
-          <Tab label="My Requests" />
-          <Tab label="Profile" />
-        </Tabs>
-      )}
+      {/* Tabs */}
+      <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3, '& .Mui-selected': { color: '#DC2626' }, '& .MuiTabs-indicator': { bgcolor: '#DC2626' } }}>
+        {tabLabels.map((label, i) => <Tab key={i} label={label} />)}
+      </Tabs>
 
-      {/* GUIDE: Listings tab */}
+      {/* GUIDE TAB 0: Listings */}
       {user.role === 'guide' && tab === 0 && (
         <Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
@@ -181,36 +187,7 @@ export default function DashboardPage() {
         </Box>
       )}
 
-      {/* TOURIST: Requests tab */}
-      {user.role === 'tourist' && tab === 0 && (
-        <Box>
-          <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Your Connection Requests</Typography>
-          {requests.length === 0 ? (
-            <Alert severity="info" action={<Button color="inherit" size="small" onClick={() => navigate('/guides')}>Browse Guides</Button>}>
-              No requests yet. Find a guide and start planning!
-            </Alert>
-          ) : (
-            requests.map((r: any) => (
-              <Paper key={r.id} sx={{ p: 3, mb: 2 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Box>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                      {r.service_date} · {r.party_size} {r.party_size > 1 ? 'people' : 'person'}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      ¥{r.quoted_amount} {r.quoted_currency} · Language: {r.language}
-                    </Typography>
-                    {r.tourist_notes && <Typography variant="body2" sx={{ mt: 0.5, fontStyle: 'italic' }}>"{r.tourist_notes}"</Typography>}
-                  </Box>
-                  <Chip label={r.status} color={r.status === 'accepted' ? 'success' : r.status === 'pending' ? 'warning' : 'default'} />
-                </Box>
-              </Paper>
-            ))
-          )}
-        </Box>
-      )}
-
-      {/* GUIDE: Requests tab */}
+      {/* GUIDE TAB 1: Requests */}
       {user.role === 'guide' && tab === 1 && (
         <Box>
           <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Connection Requests from Tourists</Typography>
@@ -229,14 +206,8 @@ export default function DashboardPage() {
                     <Chip label={r.status} color={r.status === 'accepted' ? 'success' : r.status === 'pending' ? 'warning' : 'default'} />
                     {r.status === 'pending' && (
                       <>
-                        <Button size="small" variant="contained" color="success"
-                          onClick={async () => { await api.put(\`/service-requests/\${r.id}/accept?guide_user_id=\${user.id}\`); loadRequests(user.id, user.role); }}>
-                          Accept
-                        </Button>
-                        <Button size="small" variant="outlined" color="error"
-                          onClick={async () => { await api.put(\`/service-requests/\${r.id}/decline?guide_user_id=\${user.id}\`); loadRequests(user.id, user.role); }}>
-                          Decline
-                        </Button>
+                        <Button size="small" variant="contained" color="success" onClick={() => acceptRequest(r.id)}>Accept</Button>
+                        <Button size="small" variant="outlined" color="error" onClick={() => declineRequest(r.id)}>Decline</Button>
                       </>
                     )}
                   </Box>
@@ -247,11 +218,36 @@ export default function DashboardPage() {
         </Box>
       )}
 
-      {/* PROFILE tab (both roles) */}
+      {/* TOURIST TAB 0: My Requests */}
+      {user.role === 'tourist' && tab === 0 && (
+        <Box>
+          <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Your Connection Requests</Typography>
+          {requests.length === 0 ? (
+            <Alert severity="info" action={<Button color="inherit" size="small" onClick={() => navigate('/guides')}>Browse Guides</Button>}>
+              No requests yet. Find a guide and start planning!
+            </Alert>
+          ) : (
+            requests.map((r: any) => (
+              <Paper key={r.id} sx={{ p: 3, mb: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Box>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{r.service_date} · {r.party_size} {r.party_size > 1 ? 'people' : 'person'}</Typography>
+                    <Typography variant="body2" color="text.secondary">¥{r.quoted_amount} {r.quoted_currency} · Language: {r.language}</Typography>
+                    {r.tourist_notes && <Typography variant="body2" sx={{ mt: 0.5, fontStyle: 'italic' }}>"{r.tourist_notes}"</Typography>}
+                  </Box>
+                  <Chip label={r.status} color={r.status === 'accepted' ? 'success' : r.status === 'pending' ? 'warning' : 'default'} />
+                </Box>
+              </Paper>
+            ))
+          )}
+        </Box>
+      )}
+
+      {/* PROFILE TAB (both roles) */}
       {((user.role === 'guide' && tab === 2) || (user.role === 'tourist' && tab === 1)) && (
         <Paper sx={{ p: 4, borderRadius: 3 }}>
           <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Edit Profile</Typography>
-          {saveMsg && <Alert severity={saveMsg.startsWith('✅') ? 'success' : 'error'} sx={{ mb: 2 }}>{saveMsg}</Alert>}
+          {saveMsg && <Alert severity={saveMsg.includes('Failed') ? 'error' : 'success'} sx={{ mb: 2 }}>{saveMsg}</Alert>}
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
               <TextField fullWidth label="Display Name" value={profile.display_name || ''} onChange={(e) => up('display_name', e.target.value)} />
@@ -259,11 +255,10 @@ export default function DashboardPage() {
             <Grid item xs={12} sm={6}>
               <TextField fullWidth label="Email" value={profile.email || ''} disabled />
             </Grid>
-
             {user.role === 'tourist' && (
               <>
                 <Grid item xs={12} sm={6}>
-                  <TextField fullWidth label="Country Code (e.g. US, GB, AU)" value={profile.nationality || ''}
+                  <TextField fullWidth label="Country Code (e.g. US, GB)" value={profile.nationality || ''}
                     onChange={(e) => up('nationality', e.target.value.toUpperCase())} inputProps={{ maxLength: 2 }} />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -279,12 +274,10 @@ export default function DashboardPage() {
                 </Grid>
               </>
             )}
-
             {user.role === 'guide' && (
               <>
                 <Grid item xs={12}>
-                  <TextField fullWidth multiline rows={4} label="Bio — Tell travelers your story"
-                    value={profile.bio || ''} onChange={(e) => up('bio', e.target.value)}
+                  <TextField fullWidth multiline rows={4} label="Bio" value={profile.bio || ''} onChange={(e) => up('bio', e.target.value)}
                     placeholder="What makes you unique? What will travelers experience with you?" />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -305,15 +298,8 @@ export default function DashboardPage() {
                   <TextField fullWidth label="Payment Note" placeholder="I accept Alipay, WeChat Pay, or cash"
                     value={profile.payment_note || ''} onChange={(e) => up('payment_note', e.target.value)} />
                 </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField fullWidth label="Alipay QR URL" value={profile.alipay_qr_url || ''} onChange={(e) => up('alipay_qr_url', e.target.value)} />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField fullWidth label="WeChat Pay QR URL" value={profile.wechat_pay_qr_url || ''} onChange={(e) => up('wechat_pay_qr_url', e.target.value)} />
-                </Grid>
               </>
             )}
-
             <Grid item xs={12}>
               <Button variant="contained" onClick={saveProfile}
                 sx={{ bgcolor: '#DC2626', '&:hover': { bgcolor: '#B91C1C' } }}>Save Changes</Button>
@@ -330,7 +316,7 @@ export default function DashboardPage() {
             value={newListing.title} onChange={(e) => setNewListing(p => ({ ...p, title: e.target.value }))} />
           <TextField fullWidth label="Summary (short pitch)" placeholder="What will the traveler experience?" sx={{ mb: 2 }}
             value={newListing.summary} onChange={(e) => setNewListing(p => ({ ...p, summary: e.target.value }))} multiline rows={2} />
-          <TextField fullWidth label="Full Description" placeholder="Tell the full story. Paint a picture. Make them feel it." sx={{ mb: 2 }}
+          <TextField fullWidth label="Full Description" placeholder="Tell the full story." sx={{ mb: 2 }}
             value={newListing.description_md} onChange={(e) => setNewListing(p => ({ ...p, description_md: e.target.value }))} multiline rows={4} />
           <Grid container spacing={2}>
             <Grid item xs={6}>
@@ -374,4 +360,3 @@ export default function DashboardPage() {
     </Container>
   );
 }
-// rebuilt Sat May 23 01:46:44 PM CEST 2026
