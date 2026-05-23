@@ -9,6 +9,7 @@ from app.api.v1.guides import router as guides_router
 from app.api.v1.service_requests import router as sr_router
 from app.api.v1.profile import router as profile_router
 from app.api.v1.listings import router as listings_router
+from app.api.v1.explore import router as explore_router
 
 
 @asynccontextmanager
@@ -32,6 +33,7 @@ app.include_router(guides_router, prefix="/api/v1")
 app.include_router(sr_router, prefix="/api/v1")
 app.include_router(profile_router, prefix="/api/v1")
 app.include_router(listings_router, prefix="/api/v1")
+app.include_router(explore_router, prefix="/api/v1")
 
 
 @app.get("/health")
