@@ -140,9 +140,11 @@ export default function DashboardPage() {
       </Paper>
 
       <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3, '& .Mui-selected': { color: '#DC2626' }, '& .MuiTabs-indicator': { bgcolor: '#DC2626' } }}>
-        {user.role === 'guide'
-          ? [<Tab key={0} label="My Listings" />, <Tab key={1} label="Requests" />, <Tab key={2} label="Profile" />]
-          : [<Tab key={0} label="My Requests" />, <Tab key={1} label="Profile" />]}
+        {user.role === 'guide' && <Tab label="My Listings" />}
+        {user.role === 'guide' && <Tab label="Requests" />}
+        {user.role === 'guide' && <Tab label="Profile" />}
+        {user.role === 'tourist' && <Tab label="My Requests" />}
+        {user.role === 'tourist' && <Tab label="Profile" />}
       </Tabs>
 
       {/* GUIDE: Listings tab */}

@@ -200,11 +200,13 @@ export default function GuideDetailPage() {
               try {
                 const { default: api } = await import('../services/api');
                 await api.post(`/service-requests?tourist_user_id=${user.id}`, {
-                  listing_id: selectedListing,
+                  guide_user_id: guide.user_id,
                   service_date: dateEl?.value || new Date().toISOString().split('T')[0],
                   party_size: parseInt(sizeEl?.value || '1'),
                   language: 'en',
                   tourist_notes: notesEl?.value || '',
+                  quoted_amount: guide.listings?.find((l: any) => l.id === selectedListing)?.price_amount || guide.default_rate_cny || 0,
+                  quoted_currency: 'CNY',
                 });
                 setConnectOpen(false);
                 alert('Request sent! Check your dashboard for updates.');

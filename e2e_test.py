@@ -72,9 +72,11 @@ def run_guide_flow(browser):
     shot(page, "guide_01_homepage")
     
     # Check hero images loaded
-    hero_visible = page.evaluate("() => document.querySelector('div[style*=\"background-image\"]') !== null")
-    if not hero_visible:
-        log_issue("major", "Hero background images not rendering")
+    hero_count = page.evaluate("() => Array.from(document.querySelectorAll('div')).filter(d => window.getComputedStyle(d).backgroundImage.includes('unsplash')).length")
+    if hero_count == 0:
+        log_issue("major", "Hero background images not in DOM")
+    else:
+        print(f"  ✅ Hero has {hero_count} background images")
     
     # Check if CTA button exists
     cta = page.query_selector("text=Find a Guide")
@@ -200,22 +202,34 @@ def run_guide_flow(browser):
         time.sleep(1)
         shot(page, "guide_10_new_listing_dialog")
         
-        # Fill listing form
-        title_input = page.query_selector('input[name="title"], label:has-text("Title") + div input, input[placeholder*="Beijing"]')
-        if not title_input:
-            # Try finding by label text
-            inputs = page.query_selector_all('input[type="text"]')
-            if inputs:
-                inputs[0].fill("Hidden Hutongs & Imperial Secrets — Half Day")
+        # Fill listing form using all visible inputs/textareas in dialog
+        time.sleep(1)
+        dialog = page.query_selector('[role="dialog"]')
+        if dialog:
+            inputs = dialog.query_selector_all('input:not([type="hidden"])')
+            textareas = dialog.query_selector_all('textarea')
+            print(f"  Dialog has {len(inputs)} inputs, {len(textareas)} textareas")
+            
+            # Fill the first text input (Title)
+            for inp in inputs:
+                placeholder = inp.get_attribute("placeholder") or ""
+                if "Beijing" in placeholder or "title" in placeholder.lower() or inp.get_attribute("type") in [None, "text", ""]:
+                    inp.fill("Hidden Hutongs & Imperial Secrets — Half Day")
+                    break
+            
+            # Fill only VISIBLE textareas
+            visible_tas = [ta for ta in textareas if ta.is_visible()]
+            print(f"  Visible textareas: {len(visible_tas)}")
+            for i, ta in enumerate(visible_tas):
+                try:
+                    if i == 0:
+                        ta.fill("Explore hidden alleys of old Beijing. Drink tea in a 400-year-old courtyard.")
+                    elif i == 1:
+                        ta.fill("We start at Nanluoguxiang. Hidden alleys, courtyard tea, Drum Tower, best roast duck.")
+                except Exception as e:
+                    log_issue("minor", f"Could not fill textarea {i}: {e}")
         else:
-            title_input.fill("Hidden Hutongs & Imperial Secrets — Half Day")
-        
-        # Fill textareas
-        textareas = page.query_selector_all('textarea')
-        if len(textareas) >= 1:
-            textareas[0].fill("Explore the hidden alleys of old Beijing that tourists never find. Drink tea in a 400-year-old courtyard.")
-        if len(textareas) >= 2:
-            textareas[1].fill("We start at 8am at Nanluoguxiang. I'll take you through alleys that haven't changed in 600 years. We'll visit my favorite jianbing vendor, drink tea in a courtyard home, explore the Drum and Bell towers from a local perspective, and end with the best roast duck in Beijing — not the tourist one.")
+            log_issue("major", "Listing dialog not found in DOM")
         
         shot(page, "guide_11_listing_filled")
         

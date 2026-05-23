@@ -1,26 +1,28 @@
-"""Service request (connection request) schemas — no platform payment."""
+"""Service request schemas — connection request between tourist and guide."""
 from typing import Optional
 from pydantic import BaseModel, Field
-from uuid import UUID
 from datetime import date
 
 
 class CreateServiceRequest(BaseModel):
-    """Tourist requests to connect with a guide. Payment is direct between tourist & guide."""
-    listing_id: UUID
+    """Tourist requests to connect with a guide."""
+    guide_user_id: str
+    listing_id: Optional[str] = None
     service_date: date
     party_size: int = Field(default=1, ge=1, le=30)
     language: str = "en"
     tourist_notes: Optional[str] = None
+    quoted_amount: Optional[float] = None
+    quoted_currency: str = "CNY"
 
 
 class ServiceRequestResponse(BaseModel):
-    id: UUID
-    tourist_user_id: UUID
-    guide_user_id: UUID
-    listing_id: Optional[UUID]
-    service_date: date
-    quoted_amount: float    # Guide's price (reference only)
+    id: str
+    tourist_user_id: str
+    guide_user_id: str
+    listing_id: Optional[str]
+    service_date: str
+    quoted_amount: float
     quoted_currency: str
     status: str
 
