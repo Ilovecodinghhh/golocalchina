@@ -1,8 +1,9 @@
 {
   "app": {
     "name": "GoLocalChina",
-    "tagline": "Connect with certified local guides across China",
-    "platform_notice": "GoLocalChina is an information service platform. We connect you with independent, licensed guides — we do not organize tours."
+    "tagline": "Discover China Through Local Eyes",
+    "subtitle": "Connect with passionate local guides who show you the real China — beyond the tourist trail.",
+    "platform_notice": "GoLocalChina is an information service platform. We connect you with local guides — we do not organize tours."
   },
   "nav": {
     "home": "Home",
@@ -25,23 +26,45 @@
     "per_hour": "/ hour"
   },
   "guide": {
-    "verified": "License Verified ✓",
+    "certified": "✓ Certified Guide",
+    "community": "Community Guide",
     "languages": "Languages",
     "specialties": "Specialties",
     "rating": "Rating",
     "reviews": "reviews",
     "connect": "Request to Connect",
-    "connect_note": "You are requesting to connect with an independent guide. GoLocalChina facilitates this connection but is not a party to the service agreement between you and the guide.",
+    "connect_note": "You are requesting to connect with a local guide. GoLocalChina facilitates this connection but is not a party to the service agreement between you and the guide.",
     "listings": "Service Offerings",
     "about": "About This Guide",
-    "payment_methods": "Payment Methods",
-    "scan_to_pay": "Scan to pay"
+    "payment_methods": "Payment Methods"
+  },
+  "how": {
+    "title": "How GoLocalChina Works",
+    "subtitle": "Three simple steps to your authentic China experience",
+    "step1_title": "Browse & Choose",
+    "step1_desc": "Search guides by city, language, and specialty. Read reviews from real travelers. Every certified guide's license is verified.",
+    "step2_title": "Connect & Plan",
+    "step2_desc": "Send a connection request. Chat with your guide to plan the perfect day — they know the hidden gems, the best food, and the stories behind every corner.",
+    "step3_title": "Meet & Explore",
+    "step3_desc": "Meet your guide in person. Pay them directly — cash, Alipay, or WeChat Pay. No middleman, no platform fees. Just you and a local who loves their city.",
+    "cta": "Find Your Guide Now"
+  },
+  "payment": {
+    "direct_title": "Pay Your Guide Directly",
+    "direct_desc": "Payment is arranged directly between you and the guide.",
+    "methods": "Accepted payment methods:",
+    "alipay": "Alipay",
+    "wechat": "WeChat Pay",
+    "cash": "Cash (CNY or USD)",
+    "note": "No platform fees. Pay your guide directly when you meet."
   },
   "cities": {
     "Beijing": "Beijing",
     "Shanghai": "Shanghai",
     "Xian": "Xi'an",
-    "Chengdu": "Chengdu"
+    "Chengdu": "Chengdu",
+    "Guilin": "Guilin",
+    "Hangzhou": "Hangzhou"
   },
   "specialties": {
     "history": "History & Culture",
@@ -53,13 +76,20 @@
     "family": "Family Friendly",
     "shopping": "Shopping"
   },
-  "payment": {
-    "direct_title": "Pay Your Guide Directly",
-    "direct_desc": "Payment is arranged directly between you and the guide at the time of service.",
-    "methods": "Accepted payment methods:",
-    "alipay": "Alipay",
-    "wechat": "WeChat Pay",
-    "cash": "Cash (CNY or USD)",
-    "note": "Tip: Most guides accept Alipay — just scan their QR code. No platform fees."
+  "auth": {
+    "login_title": "Welcome Back",
+    "register_title": "Join GoLocalChina",
+    "email": "Email",
+    "password": "Password",
+    "name": "Display Name",
+    "role": "I am a...",
+    "tourist": "Tourist",
+    "guide_role": "Local Guide",
+    "login_btn": "Log In",
+    "register_btn": "Create Account",
+    "no_account": "Don't have an account?",
+    "has_account": "Already have an account?",
+    "or_register": "Sign up",
+    "or_login": "Log in"
   }
 }

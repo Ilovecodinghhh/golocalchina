@@ -1,8 +1,9 @@
 {
   "app": {
     "name": "GoLocalChina",
-    "tagline": "连接外国游客与中国持证导游",
-    "platform_notice": "GoLocalChina是一个信息服务平台。我们为您连接独立持证导游——我们不组织旅游活动。"
+    "tagline": "用本地人的视角发现中国",
+    "subtitle": "连接热情的本地导游，带你体验真正的中国。",
+    "platform_notice": "GoLocalChina是一个信息服务平台。我们为您连接本地导游——我们不组织旅游活动。"
   },
   "nav": {
     "home": "首页",
@@ -16,21 +17,39 @@
     "city": "城市",
     "language": "语言",
     "specialty": "专长",
-    "search_btn": "搜索导游",
-    "results": "共{{count}}位导游可选",
+    "search_btn": "搜索",
+    "results": "共{{count}}位导游",
     "no_results": "未找到导游，请尝试其他筛选条件。",
     "price_set_by_guide": "价格由导游设定",
     "per_half_day": "/ 半天",
     "per_day": "/ 天",
     "per_hour": "/ 小时"
   },
-  "payment": {
-    "direct_title": "直接向导游付款",
-    "direct_desc": "付款在服务时由您与导游直接安排。",
-    "methods": "接受的支付方式：",
-    "alipay": "支付宝",
-    "wechat": "微信支付",
-    "cash": "现金（人民币或美元）",
-    "note": "提示：大多数导游接受支付宝——扫码即可支付。无平台费用。"
+  "how": {
+    "title": "GoLocalChina 如何运作",
+    "subtitle": "三步开启你的中国之旅",
+    "step1_title": "浏览与选择",
+    "step1_desc": "按城市、语言和专长搜索导游。阅读真实旅行者评价。",
+    "step2_title": "联系与计划",
+    "step2_desc": "发送连接请求，与导游沟通规划完美的一天。",
+    "step3_title": "见面与探索",
+    "step3_desc": "与导游见面，直接支付。没有中间商，没有平台费。",
+    "cta": "立即寻找导游"
+  },
+  "auth": {
+    "login_title": "欢迎回来",
+    "register_title": "加入GoLocalChina",
+    "email": "邮箱",
+    "password": "密码",
+    "name": "显示名称",
+    "role": "我是...",
+    "tourist": "游客",
+    "guide_role": "本地导游",
+    "login_btn": "登录",
+    "register_btn": "创建账户",
+    "no_account": "没有账户？",
+    "has_account": "已有账户？",
+    "or_register": "注册",
+    "or_login": "登录"
   }
 }

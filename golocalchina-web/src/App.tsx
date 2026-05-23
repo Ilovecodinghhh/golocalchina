@@ -4,16 +4,21 @@ import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
 import GuidesPage from './pages/GuidesPage';
 import GuideDetailPage from './pages/GuideDetailPage';
+import HowItWorksPage from './pages/HowItWorksPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import './i18n';
 
 const theme = createTheme({
   palette: {
-    primary: { main: '#1a472a' },
-    secondary: { main: '#d4a843' },
+    primary: { main: '#DC2626' },      // Red
+    secondary: { main: '#F59E0B' },     // Amber/gold
+    background: { default: '#FFFFFF' },
   },
   typography: {
     fontFamily: '"Inter", "Noto Sans SC", sans-serif',
   },
+  shape: { borderRadius: 8 },
 });
 
 export default function App() {
@@ -26,6 +31,9 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/guides" element={<GuidesPage />} />
           <Route path="/guides/:id" element={<GuideDetailPage />} />
+          <Route path="/how-it-works" element={<HowItWorksPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

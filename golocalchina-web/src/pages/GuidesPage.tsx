@@ -8,34 +8,34 @@ import AdBanner from '../components/AdBanner';
 import type { Guide, SearchParams } from '../services/api';
 
 // Mock data for development (replace with guideApi.search() when backend is running)
-const MOCK_GUIDES: Guide[] = [
+const MOCK_GUIDES: (Guide & { is_certified: boolean })[] = [
   {
-    user_id: '1', display_name: 'Li Wei', languages: ['en', 'zh'], service_cities: ['Beijing'],
+    user_id: '1', display_name: 'Li Wei', is_certified: true, languages: ['en', 'zh'], service_cities: ['Beijing'],
     specialties: ['history', 'food'], rating_avg: 4.8, rating_count: 127,
     default_rate_cny: 800, avatar_url: null, bio: 'Born and raised in Beijing. 15 years guiding foreign visitors through hutongs, temples, and hidden restaurants.',
   },
   {
-    user_id: '2', display_name: 'Zhang Mei', languages: ['en', 'zh', 'ja'], service_cities: ['Shanghai'],
+    user_id: '2', display_name: 'Zhang Mei', is_certified: true, languages: ['en', 'zh', 'ja'], service_cities: ['Shanghai'],
     specialties: ['art', 'photography'], rating_avg: 4.9, rating_count: 89,
     default_rate_cny: 1000, avatar_url: null, bio: 'Shanghai native and professional photographer. I show you the city through a camera lens.',
   },
   {
-    user_id: '3', display_name: 'Wang Jun', languages: ['en', 'zh', 'ko'], service_cities: ['Xian'],
+    user_id: '3', display_name: 'Wang Jun', is_certified: true, languages: ['en', 'zh', 'ko'], service_cities: ['Xian'],
     specialties: ['history', 'nature'], rating_avg: 4.7, rating_count: 203,
     default_rate_cny: 600, avatar_url: null, bio: 'History professor turned guide. Terracotta Warriors specialist with 20 years of research experience.',
   },
   {
-    user_id: '4', display_name: 'Chen Xiao', languages: ['en', 'zh', 'fr'], service_cities: ['Chengdu'],
+    user_id: '4', display_name: 'Chen Xiao', is_certified: false, languages: ['en', 'zh', 'fr'], service_cities: ['Chengdu'],
     specialties: ['food', 'nature', 'family'], rating_avg: 4.6, rating_count: 156,
     default_rate_cny: 700, avatar_url: null, bio: 'Sichuan food expert and panda enthusiast. Family-friendly tours with lots of spicy snacks!',
   },
   {
-    user_id: '5', display_name: 'Liu Fang', languages: ['en', 'zh', 'de'], service_cities: ['Beijing'],
+    user_id: '5', display_name: 'Liu Fang', is_certified: false, languages: ['en', 'zh', 'de'], service_cities: ['Beijing'],
     specialties: ['nightlife', 'shopping', 'food'], rating_avg: 4.5, rating_count: 94,
     default_rate_cny: 900, avatar_url: null, bio: 'Discover Beijing after dark. Best bars, night markets, and late-night eats.',
   },
   {
-    user_id: '6', display_name: 'Zhao Min', languages: ['en', 'zh', 'es'], service_cities: ['Shanghai'],
+    user_id: '6', display_name: 'Zhao Min', is_certified: true, languages: ['en', 'zh', 'es'], service_cities: ['Shanghai'],
     specialties: ['history', 'art'], rating_avg: 4.8, rating_count: 68,
     default_rate_cny: 850, avatar_url: null, bio: 'From the French Concession to Pudong — I cover 150 years of Shanghai history.',
   },

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 48" fill="none">
+  <!-- Compass/pin icon -->
+  <circle cx="24" cy="24" r="20" fill="#DC2626" opacity="0.9"/>
+  <circle cx="24" cy="20" r="7" fill="white"/>
+  <path d="M24 30 L18 20 H30 Z" fill="white"/>
+  <circle cx="24" cy="20" r="3" fill="#DC2626"/>
+  <!-- Text -->
+  <text x="52" y="20" font-family="Inter,sans-serif" font-weight="800" font-size="18" fill="#DC2626">GoLocal</text>
+  <text x="52" y="38" font-family="Inter,sans-serif" font-weight="800" font-size="18" fill="#1a1a1a">China</text>
+  <!-- Chinese subtitle -->
+  <text x="148" y="38" font-family="Noto Sans SC,sans-serif" font-weight="400" font-size="11" fill="#666">游中国</text>
+</svg>
