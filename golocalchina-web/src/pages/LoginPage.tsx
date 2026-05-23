@@ -19,10 +19,10 @@ export default function LoginPage() {
     try {
       const data = await authApi.login({ email, password });
       localStorage.setItem('glc_token', data.access_token);
-      localStorage.setItem('glc_user', JSON.stringify({ id: data.user_id, role: data.role }));
-      navigate('/guides');
+      localStorage.setItem('glc_user', JSON.stringify({ id: data.user_id, role: data.role, email }));
+      navigate('/dashboard');
     } catch (err: any) {
-      setError(err?.response?.data?.detail || 'Login failed. Check your email and password.');
+      setError(err?.response?.data?.detail || 'Invalid email or password.');
     } finally {
       setLoading(false);
     }
@@ -37,18 +37,12 @@ export default function LoginPage() {
           </Typography>
           {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
           <Box component="form" onSubmit={handleSubmit}>
-            <TextField
-              fullWidth label={t('auth.email')} type="email" value={email}
-              onChange={(e) => setEmail(e.target.value)} sx={{ mb: 2 }} required
-            />
-            <TextField
-              fullWidth label={t('auth.password')} type="password" value={password}
-              onChange={(e) => setPassword(e.target.value)} sx={{ mb: 3 }} required
-            />
-            <Button
-              fullWidth type="submit" variant="contained" disabled={loading}
-              sx={{ bgcolor: '#DC2626', py: 1.5, '&:hover': { bgcolor: '#B91C1C' } }}
-            >
+            <TextField fullWidth label={t('auth.email')} type="email" value={email}
+              onChange={(e) => setEmail(e.target.value)} sx={{ mb: 2 }} required />
+            <TextField fullWidth label={t('auth.password')} type="password" value={password}
+              onChange={(e) => setPassword(e.target.value)} sx={{ mb: 3 }} required />
+            <Button fullWidth type="submit" variant="contained" disabled={loading}
+              sx={{ bgcolor: '#DC2626', py: 1.5, '&:hover': { bgcolor: '#B91C1C' } }}>
               {loading ? '...' : t('auth.login_btn')}
             </Button>
           </Box>

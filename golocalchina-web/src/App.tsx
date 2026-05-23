@@ -7,12 +7,13 @@ import GuideDetailPage from './pages/GuideDetailPage';
 import HowItWorksPage from './pages/HowItWorksPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import DashboardPage from './pages/DashboardPage';
 import './i18n';
 
 const theme = createTheme({
   palette: {
-    primary: { main: '#DC2626' },      // Red
-    secondary: { main: '#F59E0B' },     // Amber/gold
+    primary: { main: '#DC2626' },
+    secondary: { main: '#F59E0B' },
     background: { default: '#FFFFFF' },
   },
   typography: {
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/how-it-works" element={<HowItWorksPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
