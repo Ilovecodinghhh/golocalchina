@@ -26,19 +26,18 @@ export default function DashboardPage() {
     price_amount: 500, price_unit: 'per_half_day', cover_image_url: '', languages: 'en,zh'
   });
 
-  const loadRequests = async (userId: string, role: string) => {
+  const loadRequests = async () => {
     try {
-      const url = '/service-requests/mine?user_id=' + userId + '&role=' + role;
-      const res = await api.get(url);
+      const res = await api.get('/service-requests/mine');
       setRequests(res.data);
     } catch (err) {
       console.error('Failed to load requests:', err);
     }
   };
 
-  const loadProfile = async (userId: string) => {
+  const loadProfile = async () => {
     try {
-      const res = await api.get('/profile/me?user_id=' + userId);
+      const res = await api.get('/profile/me');
       setProfile(res.data);
     } catch {
       const stored = localStorage.getItem('glc_user');
@@ -46,9 +45,9 @@ export default function DashboardPage() {
     }
   };
 
-  const loadListings = async (userId: string) => {
+  const loadListings = async () => {
     try {
-      const res = await api.get('/listings/mine?guide_user_id=' + userId);
+      const res = await api.get('/listings/mine');
       setListings(res.data);
     } catch {}
   };
@@ -58,22 +57,22 @@ export default function DashboardPage() {
     if (!stored) { navigate('/login'); return; }
     const u = JSON.parse(stored);
     setUser(u);
-    loadProfile(u.id);
-    loadRequests(u.id, u.role);
-    if (u.role === 'guide') loadListings(u.id);
+    loadProfile();
+    loadRequests();
+    if (u.role === 'guide') loadListings();
   }, [navigate]);
 
   const saveProfile = async () => {
     setSaveMsg('');
     try {
       if (user.role === 'tourist') {
-        await api.put('/profile/me/tourist?user_id=' + user.id, {
+        await api.put('/profile/me/tourist', {
           display_name: profile.display_name,
           nationality: profile.nationality,
           preferred_currency: profile.preferred_currency,
         });
       } else {
-        await api.put('/profile/me/guide?user_id=' + user.id, {
+        await api.put('/profile/me/guide', {
           display_name: profile.display_name, bio: profile.bio,
           languages: typeof profile.languages === 'string' ? profile.languages.split(',').map((s: string) => s.trim()) : profile.languages,
           service_cities: typeof profile.service_cities === 'string' ? profile.service_cities.split(',').map((s: string) => s.trim()) : profile.service_cities,
@@ -99,7 +98,7 @@ export default function DashboardPage() {
     if (newListing.description_md.length < 20) { setListingError('Description must be at least 20 characters. Tell the full story of your trip.'); return; }
     if (newListing.price_amount <= 0) { setListingError('Please set a price.'); return; }
     try {
-      await api.post('/listings?guide_user_id=' + user.id, {
+      await api.post('/listings', {
         ...newListing,
         languages: newListing.languages.split(',').map(s => s.trim()),
         price_amount: Number(newListing.price_amount),
@@ -107,7 +106,7 @@ export default function DashboardPage() {
       setNewListingOpen(false);
       setListingError('');
       setNewListing({ title: '', summary: '', description_md: '', city: 'Beijing', price_amount: 500, price_unit: 'per_half_day', cover_image_url: '', languages: 'en,zh' });
-      loadListings(user.id);
+      loadListings();
       setSaveMsg('Listing published! It will appear on the Guides page.');
     } catch (err: any) {
       const detail = err?.response?.data?.detail;
@@ -122,22 +121,22 @@ export default function DashboardPage() {
   const deleteListing = async (id: string) => {
     if (!confirm('Delete this listing?')) return;
     try {
-      await api.delete('/listings/' + id + '?guide_user_id=' + user.id);
-      loadListings(user.id);
+      await api.delete('/listings/' + id);
+      loadListings();
     } catch {}
   };
 
   const acceptRequest = async (requestId: string) => {
     try {
-      await api.put('/service-requests/' + requestId + '/accept?guide_user_id=' + user.id);
-      loadRequests(user.id, user.role);
+      await api.put('/service-requests/' + requestId + '/accept');
+      loadRequests();
     } catch {}
   };
 
   const declineRequest = async (requestId: string) => {
     try {
-      await api.put('/service-requests/' + requestId + '/decline?guide_user_id=' + user.id);
-      loadRequests(user.id, user.role);
+      await api.put('/service-requests/' + requestId + '/decline');
+      loadRequests();
     } catch {}
   };
 

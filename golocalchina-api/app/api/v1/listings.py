@@ -1,10 +1,11 @@
-"""Guide Listing CRUD — guides create and manage their service offerings."""
+"""Guide Listing CRUD — guides create and manage their service offerings. JWT-authenticated."""
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
+from app.core.security import get_current_guide
 from app.models.listing import GuideListing
 
 router = APIRouter(prefix="/listings", tags=["listings"])
@@ -40,8 +41,13 @@ class UpdateListing(BaseModel):
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
-async def create_listing(guide_user_id: str, req: CreateListing, db: AsyncSession = Depends(get_db)):
+async def create_listing(
+    req: CreateListing,
+    current_user: dict = Depends(get_current_guide),
+    db: AsyncSession = Depends(get_db),
+):
     """Create a new guide service listing."""
+    guide_user_id = current_user["user_id"]
     listing = GuideListing(
         guide_user_id=guide_user_id,
         title=req.title, summary=req.summary, description_md=req.description_md,
@@ -56,8 +62,12 @@ async def create_listing(guide_user_id: str, req: CreateListing, db: AsyncSessio
 
 
 @router.get("/mine")
-async def list_my_listings(guide_user_id: str, db: AsyncSession = Depends(get_db)):
-    """Get all listings for a guide."""
+async def list_my_listings(
+    current_user: dict = Depends(get_current_guide),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get all listings for the authenticated guide."""
+    guide_user_id = current_user["user_id"]
     result = await db.execute(
         select(GuideListing).where(GuideListing.guide_user_id == guide_user_id)
         .order_by(GuideListing.created_at.desc())
@@ -72,7 +82,13 @@ async def list_my_listings(guide_user_id: str, db: AsyncSession = Depends(get_db
 
 
 @router.put("/{listing_id}")
-async def update_listing(listing_id: str, guide_user_id: str, req: UpdateListing, db: AsyncSession = Depends(get_db)):
+async def update_listing(
+    listing_id: str,
+    req: UpdateListing,
+    current_user: dict = Depends(get_current_guide),
+    db: AsyncSession = Depends(get_db),
+):
+    guide_user_id = current_user["user_id"]
     result = await db.execute(
         select(GuideListing).where(GuideListing.id == listing_id, GuideListing.guide_user_id == guide_user_id)
     )
@@ -86,7 +102,12 @@ async def update_listing(listing_id: str, guide_user_id: str, req: UpdateListing
 
 
 @router.delete("/{listing_id}")
-async def delete_listing(listing_id: str, guide_user_id: str, db: AsyncSession = Depends(get_db)):
+async def delete_listing(
+    listing_id: str,
+    current_user: dict = Depends(get_current_guide),
+    db: AsyncSession = Depends(get_db),
+):
+    guide_user_id = current_user["user_id"]
     result = await db.execute(
         select(GuideListing).where(GuideListing.id == listing_id, GuideListing.guide_user_id == guide_user_id)
     )

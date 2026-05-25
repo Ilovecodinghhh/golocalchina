@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.security import hash_password, verify_password, create_access_token, create_refresh_token
+from app.core.security import hash_password, verify_password, needs_rehash, create_access_token, create_refresh_token
 from app.models.user import User, TouristProfile, GuideProfile
 from app.schemas.auth import RegisterRequest, LoginRequest, TokenResponse
 
@@ -141,6 +141,12 @@ async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     if user.status != "active":
         raise HTTPException(status_code=403, detail="Account not active")
+
+    # Transparently upgrade legacy SHA-256 hashes to argon2
+    if needs_rehash(user.password_hash):
+        user.password_hash = hash_password(req.password)
+        await db.flush()
+
     return TokenResponse(
         access_token=create_access_token(str(user.id), user.role),
         refresh_token=create_refresh_token(str(user.id)),

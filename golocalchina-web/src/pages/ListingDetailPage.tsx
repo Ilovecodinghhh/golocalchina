@@ -38,16 +38,15 @@ export default function ListingDetailPage() {
   }, [id]);
 
   const sendRequest = async () => {
-    const stored = localStorage.getItem('glc_user');
+    const stored = localStorage.getItem('glc_token');
     if (!stored) { navigate('/login'); return; }
-    const user = JSON.parse(stored);
     const dateEl = document.querySelector('input[type="date"]') as HTMLInputElement;
     const sizeEl = document.querySelectorAll('input[type="number"]')[0] as HTMLInputElement;
     const notesEl = document.querySelector('textarea') as HTMLTextAreaElement;
 
     setSending(true);
     try {
-      await api.post('/service-requests?tourist_user_id=' + user.id, {
+      await api.post('/service-requests', {
         guide_user_id: listing.guide.user_id,
         service_date: dateEl?.value || new Date().toISOString().split('T')[0],
         party_size: parseInt(sizeEl?.value || '1'),
