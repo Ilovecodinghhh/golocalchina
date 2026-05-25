@@ -12,13 +12,21 @@
 4. Railway will auto-detect — set these:
    - **Root Directory:** `golocalchina-api`
    - **Start Command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-5. Add environment variables in Railway dashboard:
+
+### Step 1b: Add PostgreSQL (persistent data)
+
+5. In your Railway project, click **"+ New"** → **"Database"** → **"PostgreSQL"**
+6. Railway auto-creates `DATABASE_URL` env var and links it to your service
+7. Add these environment variables in Railway dashboard:
    ```
-   JWT_SECRET_KEY=<generate a random 64-char string>
+   JWT_SECRET_KEY=<generate with: python -c "import secrets; print(secrets.token_urlsafe(64))">
    CORS_ORIGINS=https://golocalchina.vercel.app
    ```
-6. Click **Deploy** → Railway gives you a URL like `golocalchina-api-production.up.railway.app`
-7. Test: visit `https://YOUR_RAILWAY_URL/health` — should show `{"status":"ok"}`
+   > ⚠️ **JWT_SECRET_KEY is required.** Without it, a random key is generated on each
+   > deploy and all existing user sessions become invalid.
+
+8. Click **Deploy** → Railway gives you a URL like `golocalchina-api-production.up.railway.app`
+9. Test: visit `https://YOUR_RAILWAY_URL/health` — should show `{"status":"ok"}`
 
 ---
 
@@ -66,3 +74,9 @@ Your live URLs:
 - **API Docs:** `https://YOUR_RAILWAY_URL.up.railway.app/docs`
 
 Both have HTTPS, auto-deploy on git push, and cost $0.
+
+### Security Notes
+- All protected endpoints (profile, listings, service requests) require JWT Bearer authentication
+- Passwords are hashed with argon2id (memory-hard, GPU-resistant)
+- Legacy SHA-256 hashes from earlier versions are transparently upgraded on login
+- Data persists in PostgreSQL (no more data loss on redeploy)

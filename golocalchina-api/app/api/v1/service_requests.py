@@ -1,8 +1,9 @@
-"""Service Request endpoints — connection requests."""
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+"""Service Request endpoints — connection requests. JWT-authenticated."""
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
+from app.core.security import get_current_user, get_current_guide
 from app.models.listing import GuideListing
 from app.models.booking import ServiceRequest
 from app.schemas.service_request import CreateServiceRequest, ServiceRequestResponse
@@ -13,10 +14,11 @@ router = APIRouter(prefix="/service-requests", tags=["service-requests"])
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def create_service_request(
     req: CreateServiceRequest,
-    tourist_user_id: str = Query(...),
+    current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Tourist requests to connect with a guide. Listing is optional."""
+    tourist_user_id = current_user["user_id"]
     quoted = req.quoted_amount or 0
     currency = req.quoted_currency or "CNY"
 
@@ -54,9 +56,11 @@ async def create_service_request(
 
 @router.get("/mine")
 async def list_my_requests(
-    user_id: str = Query(...), role: str = Query("tourist"),
+    current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    user_id = current_user["user_id"]
+    role = current_user["role"]
     if role == "guide":
         result = await db.execute(
             select(ServiceRequest).where(ServiceRequest.guide_user_id == user_id)
@@ -78,20 +82,32 @@ async def list_my_requests(
 
 
 @router.put("/{request_id}/accept")
-async def accept_request(request_id: str, guide_user_id: str = Query(...), db: AsyncSession = Depends(get_db)):
+async def accept_request(
+    request_id: str,
+    current_user: dict = Depends(get_current_guide),
+    db: AsyncSession = Depends(get_db),
+):
+    guide_user_id = current_user["user_id"]
     result = await db.execute(select(ServiceRequest).where(ServiceRequest.id == request_id, ServiceRequest.guide_user_id == guide_user_id))
     sr = result.scalar_one_or_none()
-    if not sr: raise HTTPException(status_code=404, detail="Request not found")
+    if not sr:
+        raise HTTPException(status_code=404, detail="Request not found")
     sr.status = "accepted"
     await db.flush()
     return {"message": "Request accepted"}
 
 
 @router.put("/{request_id}/decline")
-async def decline_request(request_id: str, guide_user_id: str = Query(...), db: AsyncSession = Depends(get_db)):
+async def decline_request(
+    request_id: str,
+    current_user: dict = Depends(get_current_guide),
+    db: AsyncSession = Depends(get_db),
+):
+    guide_user_id = current_user["user_id"]
     result = await db.execute(select(ServiceRequest).where(ServiceRequest.id == request_id, ServiceRequest.guide_user_id == guide_user_id))
     sr = result.scalar_one_or_none()
-    if not sr: raise HTTPException(status_code=404, detail="Request not found")
+    if not sr:
+        raise HTTPException(status_code=404, detail="Request not found")
     sr.status = "cancelled_by_guide"
     await db.flush()
     return {"message": "Request declined"}

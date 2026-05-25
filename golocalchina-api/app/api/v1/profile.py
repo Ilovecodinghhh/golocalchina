@@ -1,10 +1,11 @@
-"""Profile endpoints — update tourist/guide profiles."""
+"""Profile endpoints — update tourist/guide profiles. JWT-authenticated."""
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
+from app.core.security import get_current_user, get_current_tourist, get_current_guide
 from app.models.user import User, TouristProfile, GuideProfile
 
 router = APIRouter(prefix="/profile", tags=["profile"])
@@ -30,8 +31,12 @@ class UpdateGuideProfile(BaseModel):
 
 
 @router.get("/me")
-async def get_my_profile(user_id: str, db: AsyncSession = Depends(get_db)):
-    """Get current user's profile. Pass user_id as query param (TODO: from JWT)."""
+async def get_my_profile(
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get current user's profile from JWT token."""
+    user_id = current_user["user_id"]
     user_result = await db.execute(select(User).where(User.id == user_id))
     user = user_result.scalar_one_or_none()
     if not user:
@@ -61,7 +66,12 @@ async def get_my_profile(user_id: str, db: AsyncSession = Depends(get_db)):
 
 
 @router.put("/me/tourist")
-async def update_tourist_profile(user_id: str, req: UpdateTouristProfile, db: AsyncSession = Depends(get_db)):
+async def update_tourist_profile(
+    req: UpdateTouristProfile,
+    current_user: dict = Depends(get_current_tourist),
+    db: AsyncSession = Depends(get_db),
+):
+    user_id = current_user["user_id"]
     result = await db.execute(select(TouristProfile).where(TouristProfile.user_id == user_id))
     tp = result.scalar_one_or_none()
     if not tp:
@@ -73,7 +83,12 @@ async def update_tourist_profile(user_id: str, req: UpdateTouristProfile, db: As
 
 
 @router.put("/me/guide")
-async def update_guide_profile(user_id: str, req: UpdateGuideProfile, db: AsyncSession = Depends(get_db)):
+async def update_guide_profile(
+    req: UpdateGuideProfile,
+    current_user: dict = Depends(get_current_guide),
+    db: AsyncSession = Depends(get_db),
+):
+    user_id = current_user["user_id"]
     result = await db.execute(select(GuideProfile).where(GuideProfile.user_id == user_id))
     gp = result.scalar_one_or_none()
     if not gp:
