@@ -6,13 +6,13 @@ import SearchIcon from '@mui/icons-material/Search';
 import HandshakeIcon from '@mui/icons-material/Handshake';
 import ExploreIcon from '@mui/icons-material/Explore';
 
-// Verified China-specific scenic photos
+// User-uploaded China scenic photos
 const HERO_IMAGES = [
-  'https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?w=1920&q=80', // Great Wall
-  'https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=1920&q=80',   // Shanghai Bund night
-  'https://images.unsplash.com/photo-1517483000871-1dbf64a6e1c6?w=1920&q=80', // Chinese pagoda
-  'https://images.unsplash.com/photo-1558981285-6f0c94958bb6?w=1920&q=80',   // Zhangjiajie mountains
-  'https://images.unsplash.com/photo-1509023464722-18d996393ca8?w=1920&q=80', // Misty Chinese mountains
+  '/images/hanson-lu-Q36BvLGdOAg-unsplash.jpg',
+  '/images/sergio-kian-JLJ3H21VDXU-unsplash.jpg',
+  '/images/texco-kwok-aPV-DzCvgX4-unsplash.jpg',
+  '/images/wang-xiaoqi-4UficfJjTcc-unsplash.jpg',
+  '/images/yiran-ding-g-Z4_2nnXcc-unsplash.jpg',
 ];
 
 const CITY_IMAGES: Record<string, { img: string; emoji: string; desc: string }> = {

@@ -1,6 +1,15 @@
-"""Async SQLAlchemy engine + session factory. Supports SQLite and PostgreSQL."""
+"""Async SQLAlchemy engine + session factory.
+
+Merged from golocalchina-backend:
+- Supports both SQLite and PostgreSQL
+- Connection pooling for PostgreSQL
+- Proper error handling and rollback
+"""
 import os
+from typing import AsyncGenerator
+
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
 from app.core.config import settings
 
 # Ensure SQLite directory exists
@@ -11,15 +20,38 @@ if "sqlite" in db_url:
     if db_dir:
         os.makedirs(db_dir, exist_ok=True)
 
+# Configure engine based on database type
 connect_args = {}
+pool_kwargs = {}
+
 if "sqlite" in db_url:
     connect_args = {"check_same_thread": False}
+else:
+    # PostgreSQL: enable connection pooling
+    pool_kwargs = {
+        "pool_pre_ping": True,
+        "pool_size": 10,
+        "max_overflow": 20,
+    }
 
-engine = create_async_engine(db_url, echo=True, connect_args=connect_args)
-async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+engine = create_async_engine(
+    db_url,
+    echo=settings.debug,
+    connect_args=connect_args,
+    **pool_kwargs,
+)
+
+async_session = async_sessionmaker(
+    engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+    autoflush=False,
+    autocommit=False,
+)
 
 
-async def get_db() -> AsyncSession:
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    """FastAPI dependency that yields one transaction per request."""
     async with async_session() as session:
         try:
             yield session

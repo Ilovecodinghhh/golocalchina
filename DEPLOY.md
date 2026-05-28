@@ -4,6 +4,17 @@
 
 ---
 
+## Architecture
+
+This project uses a **unified backend** (`golocalchina-api/`) that supports:
+- **SQLite** for development and demo deployments (Railway free tier)
+- **PostgreSQL** for production deployments
+- **Argon2id** password hashing (OWASP recommended)
+- **PyJWT** for JWT tokens (replaces unmaintained python-jose)
+- **Anthropic SDK** for AI agent LLM calls (secure, no CLI flags)
+
+---
+
 ## Step 1: Deploy Backend to Railway (5 min)
 
 1. Go to [railway.app](https://railway.app) → Sign up with GitHub
@@ -16,6 +27,7 @@
    ```
    JWT_SECRET_KEY=<generate a random 64-char string>
    CORS_ORIGINS=https://golocalchina.vercel.app
+   ANTHROPIC_API_KEY=<your-anthropic-api-key>
    ```
 6. Click **Deploy** → Railway gives you a URL like `golocalchina-api-production.up.railway.app`
 7. Test: visit `https://YOUR_RAILWAY_URL/health` — should show `{"status":"ok"}`
@@ -55,6 +67,44 @@
 2. In Vercel: **Settings → Domains → Add** `golocalchina.com`
 3. Point your domain's DNS to Vercel (they give you the records)
 4. HTTPS is automatic
+
+---
+
+## Step 5: Production PostgreSQL (optional)
+
+For production deployments, switch from SQLite to PostgreSQL:
+
+1. Add a PostgreSQL database in Railway (or use Supabase/Neon)
+2. Set the `DATABASE_URL` environment variable:
+   ```
+   DATABASE_URL=postgresql+asyncpg://user:pass@host:5432/dbname
+   ```
+3. The backend auto-detects PostgreSQL and enables connection pooling
+
+---
+
+## Running Tests
+
+```bash
+cd golocalchina-api
+pip install -r requirements.txt
+pytest
+```
+
+Tests cover:
+- Health endpoint
+- Auth flow (send code, verify code, register, login)
+- Guide search and detail
+- Explore listings
+
+---
+
+## CI/CD
+
+GitHub Actions automatically runs tests on every push and PR:
+- Python 3.11 and 3.12 matrix
+- Ruff linting
+- Pytest with coverage reporting
 
 ---
 

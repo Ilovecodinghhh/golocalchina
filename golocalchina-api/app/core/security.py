@@ -1,42 +1,70 @@
-"""JWT + password hashing utilities."""
-import hashlib
-import secrets
+"""Argon2 password hashing + PyJWT token issuance / verification.
+
+Merged from golocalchina-backend's security module:
+- Argon2id for password hashing (OWASP recommended, replaces SHA-256+salt)
+- PyJWT for JWT (replaces unmaintained python-jose)
+"""
+from __future__ import annotations
+
+import uuid
 from datetime import datetime, timedelta, timezone
-from jose import jwt
+from typing import Any, Literal
+
+import jwt
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
+
 from app.core.config import settings
 
+_hasher = PasswordHasher()  # OWASP defaults: t=3, m=64MiB, p=4
 
-def hash_password(password: str) -> str:
-    """Hash password using SHA-256 + salt (no C dependency)."""
-    salt = secrets.token_hex(16)
-    hashed = hashlib.sha256(f"{salt}{password}".encode()).hexdigest()
-    return f"{salt}${hashed}"
+
+def hash_password(plain: str) -> str:
+    """Hash password using Argon2id."""
+    return _hasher.hash(plain)
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    """Verify password against stored hash."""
+    """Verify password against Argon2 hash."""
     try:
-        salt, stored_hash = hashed.split("$", 1)
-        return hashlib.sha256(f"{salt}{plain}".encode()).hexdigest() == stored_hash
-    except ValueError:
+        _hasher.verify(hashed, plain)
+        return True
+    except VerifyMismatchError:
         return False
 
 
+TokenType = Literal["access", "refresh"]
+
+
 def create_access_token(subject: str, role: str) -> str:
-    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.jwt_access_token_expire_minutes)
-    return jwt.encode(
-        {"sub": subject, "role": role, "exp": expire, "type": "access"},
-        settings.jwt_secret_key, algorithm=settings.jwt_algorithm,
-    )
+    """Create a JWT access token."""
+    now = datetime.now(timezone.utc)
+    exp = now + timedelta(minutes=settings.jwt_access_token_expire_minutes)
+    payload: dict[str, Any] = {
+        "sub": str(subject),
+        "role": role,
+        "type": "access",
+        "iat": int(now.timestamp()),
+        "exp": int(exp.timestamp()),
+        "jti": str(uuid.uuid4()),
+    }
+    return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
 
 
 def create_refresh_token(subject: str) -> str:
-    expire = datetime.now(timezone.utc) + timedelta(days=settings.jwt_refresh_token_expire_days)
-    return jwt.encode(
-        {"sub": subject, "exp": expire, "type": "refresh"},
-        settings.jwt_secret_key, algorithm=settings.jwt_algorithm,
-    )
+    """Create a JWT refresh token."""
+    now = datetime.now(timezone.utc)
+    exp = now + timedelta(days=settings.jwt_refresh_token_expire_days)
+    payload: dict[str, Any] = {
+        "sub": str(subject),
+        "type": "refresh",
+        "iat": int(now.timestamp()),
+        "exp": int(exp.timestamp()),
+        "jti": str(uuid.uuid4()),
+    }
+    return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
 
 
-def decode_token(token: str) -> dict:
+def decode_token(token: str) -> dict[str, Any]:
+    """Decode and verify a JWT token."""
     return jwt.decode(token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm])

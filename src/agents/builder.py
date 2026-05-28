@@ -1,24 +1,21 @@
 """
 Builder Agent — Writes all code: frontend, backend, infra, DevOps.
 
-This agent receives specs from Architect and produces implementable code.
-It represents the Claude Code coding capability.
+Loads built-in coding skill for implementation best practices.
 """
-import os
 from pathlib import Path
 from src.core.base_agent import BaseAgent
 from src.core.message_bus import MessageBus
 
-REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+SKILLS_DIR = Path(__file__).resolve().parent.parent / "skills"
 
 
 class BuilderAgent(BaseAgent):
     def __init__(self, bus: MessageBus):
         super().__init__(name="Builder", role="builder", bus=bus)
-        self._skills_cache = None
 
     def system_prompt(self) -> str:
-        return """You are the Builder agent for a two-sided platform connecting foreign tourists with locally certified guides in China (codename: "GoLocalChina").
+        return """You are the Builder agent for GoLocalChina — a platform connecting foreign tourists with locally certified guides in China.
 
 Your responsibilities:
 1. Implement frontend (React Native / Next.js) from Architect's specs
@@ -29,7 +26,7 @@ Your responsibilities:
 6. Implement i18n infrastructure
 7. Write tests for all critical paths
 
-You follow these principles:
+Engineering principles:
 - Mobile-first responsive design
 - API-first architecture (OpenAPI specs)
 - Type-safe code with full type hints
@@ -39,29 +36,12 @@ You follow these principles:
 
 When you receive a spec from Architect:
 1. Acknowledge what you'll build
-2. Identify any ambiguities and ask Architect to clarify
-3. Produce the code with clear file structure
-4. Note any Legal constraints that affect implementation (e.g., data residency)
-
-When Legal flags compliance requirements, incorporate them into the implementation."""
+2. Identify ambiguities and ask Architect to clarify
+3. Produce code with clear file structure
+4. Note Legal constraints affecting implementation (e.g., data residency)"""
 
     def skills_context(self) -> str:
-        if self._skills_cache:
-            return self._skills_cache
-
-        skills = []
-
-        # Load MetaGPT's Engineer role prompt for coding best practices
-        eng_prompt = REPO_ROOT / "agents" / "metagpt" / "metagpt" / "prompts" / "di" / "engineer2.py"
-        if eng_prompt.exists():
-            content = eng_prompt.read_text()[:2000]
-            skills.append(f"[MetaGPT Engineer Prompt Reference]\n{content}")
-
-        # Load MetaGPT's code review action
-        review_path = REPO_ROOT / "agents" / "metagpt" / "metagpt" / "actions" / "write_code.py"
-        if review_path.exists():
-            content = review_path.read_text()[:2000]
-            skills.append(f"[MetaGPT Code Writing Reference]\n{content}")
-
-        self._skills_cache = "\n\n---\n\n".join(skills) if skills else "No builder skills loaded."
-        return self._skills_cache
+        skill_file = SKILLS_DIR / "coding" / "SKILL.md"
+        if skill_file.exists():
+            return skill_file.read_text()[:8000]
+        return "No coding skills loaded."
