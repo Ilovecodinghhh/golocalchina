@@ -9,6 +9,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import ListingDetailPage from './pages/ListingDetailPage';
+import PostsPage from './pages/PostsPage';
 import './i18n';
 
 const theme = createTheme({
@@ -38,6 +39,7 @@ export default function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/listing/:id" element={<ListingDetailPage />} />
+          <Route path="/posts" element={<PostsPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

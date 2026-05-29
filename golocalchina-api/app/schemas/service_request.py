@@ -9,6 +9,7 @@ class CreateServiceRequest(BaseModel):
     guide_user_id: str
     listing_id: Optional[str] = None
     service_date: date
+    service_time_hour: Optional[int] = None
     party_size: int = Field(default=1, ge=1, le=30)
     language: str = "en"
     tourist_notes: Optional[str] = None

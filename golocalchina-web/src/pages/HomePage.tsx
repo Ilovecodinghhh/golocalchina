@@ -13,6 +13,7 @@ const HERO_IMAGES = [
   '/images/texco-kwok-aPV-DzCvgX4-unsplash.jpg',
   '/images/wang-xiaoqi-4UficfJjTcc-unsplash.jpg',
   '/images/yiran-ding-g-Z4_2nnXcc-unsplash.jpg',
+  '/images/pascal-muller-4EajIuUxgAQ-unsplash.jpg',  // Panda
 ];
 
 const CITY_IMAGES: Record<string, { img: string; emoji: string; desc: string }> = {

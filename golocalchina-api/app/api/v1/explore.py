@@ -56,6 +56,11 @@ async def search_listings(
             "price_currency": listing.price_currency,
             "price_unit": listing.price_unit,
             "cover_image_url": listing.cover_image_url,
+            "images": listing.images if isinstance(listing.images, list) else [],
+            "map_links": listing.map_links if isinstance(listing.map_links, list) else [],
+            "views": listing.views or 0,
+            "likes": listing.likes or 0,
+            "created_at": listing.created_at,
             "languages": listing.languages if isinstance(listing.languages, list) else [],
             "tags": listing.tags if isinstance(listing.tags, list) else [],
             "guide": {
@@ -85,13 +90,17 @@ async def search_listings(
 
 @router.get("/listings/{listing_id}")
 async def get_listing_detail(listing_id: str, db: AsyncSession = Depends(get_db)):
-    """Get a single listing with guide info."""
+    """Get a single listing with guide info. Increments view count."""
     result = await db.execute(
         select(GuideListing).where(GuideListing.id == listing_id)
     )
     listing = result.scalar_one_or_none()
     if not listing:
         return {"error": "not_found"}
+
+    # Increment view count
+    listing.views = (listing.views or 0) + 1
+    await db.flush()
 
     gp_result = await db.execute(
         select(GuideProfile).where(GuideProfile.user_id == listing.guide_user_id)
@@ -103,6 +112,11 @@ async def get_listing_detail(listing_id: str, db: AsyncSession = Depends(get_db)
         "description_md": listing.description_md, "city": listing.city,
         "price_amount": float(listing.price_amount), "price_currency": listing.price_currency,
         "price_unit": listing.price_unit, "cover_image_url": listing.cover_image_url,
+        "images": listing.images if isinstance(listing.images, list) else [],
+        "map_links": listing.map_links if isinstance(listing.map_links, list) else [],
+        "views": listing.views or 0,
+        "likes": listing.likes or 0,
+        "created_at": listing.created_at,
         "languages": listing.languages if isinstance(listing.languages, list) else [],
         "guide": {
             "user_id": guide.user_id if guide else "", "display_name": guide.display_name if guide else "Guide",

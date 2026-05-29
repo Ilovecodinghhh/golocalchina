@@ -31,6 +31,7 @@ export default function Navbar() {
         <Box sx={{ flexGrow: 1, display: 'flex', gap: 1 }}>
           <Button component={Link} to="/guides" sx={{ color: '#333', fontWeight: 600 }}>{t('nav.guides')}</Button>
           <Button component={Link} to="/how-it-works" sx={{ color: '#333', fontWeight: 600 }}>{t('nav.how_it_works')}</Button>
+          <Button component={Link} to="/posts" sx={{ color: '#333', fontWeight: 600 }}>{t('nav.posts', 'Posts')}</Button>
         </Box>
 
         <Select value={i18n.language} onChange={(e) => i18n.changeLanguage(e.target.value)}

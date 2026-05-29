@@ -23,6 +23,8 @@ from app.api.v1.service_requests import router as sr_router
 from app.api.v1.profile import router as profile_router
 from app.api.v1.listings import router as listings_router
 from app.api.v1.explore import router as explore_router
+from app.api.v1.reviews import router as reviews_router
+from app.api.v1.posts import router as posts_router
 
 
 @asynccontextmanager
@@ -115,6 +117,8 @@ app.include_router(sr_router, prefix="/api/v1")
 app.include_router(profile_router, prefix="/api/v1")
 app.include_router(listings_router, prefix="/api/v1")
 app.include_router(explore_router, prefix="/api/v1")
+app.include_router(reviews_router, prefix="/api/v1")
+app.include_router(posts_router, prefix="/api/v1")
 
 
 @app.get("/health")

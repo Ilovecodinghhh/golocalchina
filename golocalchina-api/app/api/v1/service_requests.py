@@ -35,6 +35,7 @@ async def create_service_request(
         guide_user_id=req.guide_user_id,
         listing_id=req.listing_id,
         service_date=str(req.service_date),
+        service_time_hour=req.service_time_hour,
         party_size=req.party_size,
         language=req.language,
         tourist_notes=req.tourist_notes,
@@ -70,6 +71,7 @@ async def list_my_requests(
     return [
         {"id": r.id, "tourist_user_id": r.tourist_user_id, "guide_user_id": r.guide_user_id,
          "listing_id": r.listing_id, "service_date": r.service_date,
+         "service_time_hour": r.service_time_hour,
          "quoted_amount": float(r.quoted_amount), "quoted_currency": r.quoted_currency,
          "status": r.status, "party_size": r.party_size, "language": r.language,
          "tourist_notes": r.tourist_notes, "created_at": r.created_at}
@@ -95,3 +97,22 @@ async def decline_request(request_id: str, guide_user_id: str = Query(...), db: 
     sr.status = "cancelled_by_guide"
     await db.flush()
     return {"message": "Request declined"}
+
+
+@router.put("/{request_id}/met")
+async def mark_as_met(request_id: str, guide_user_id: str = Query(...), db: AsyncSession = Depends(get_db)):
+    """Guide marks that they have met the tourist. This enables the tourist to write a review."""
+    result = await db.execute(
+        select(ServiceRequest).where(
+            ServiceRequest.id == request_id,
+            ServiceRequest.guide_user_id == guide_user_id
+        )
+    )
+    sr = result.scalar_one_or_none()
+    if not sr:
+        raise HTTPException(status_code=404, detail="Request not found")
+    if sr.status not in ("accepted",):
+        raise HTTPException(status_code=400, detail="Can only mark accepted requests as met")
+    sr.status = "met"
+    await db.flush()
+    return {"message": "Service marked as met. Tourist can now write a review."}

@@ -3,14 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import {
   Container, Typography, Box, Paper, Button, Grid, Avatar, Chip,
   TextField, Alert, Tabs, Tab, Dialog, DialogTitle, DialogContent,
-  DialogActions, Select, MenuItem, FormControl, InputLabel, IconButton
+  DialogActions, Select, MenuItem, FormControl, InputLabel, IconButton,
+  Rating
 } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import HandshakeIcon from '@mui/icons-material/Handshake';
+import RateReviewIcon from '@mui/icons-material/RateReview';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import api from '../services/api';
 
 const CITIES = ['Beijing', 'Shanghai', 'Xian', 'Chengdu', 'Guilin', 'Hangzhou'];
+const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
 export default function DashboardPage() {
   const navigate = useNavigate();
@@ -23,8 +29,14 @@ export default function DashboardPage() {
   const [newListingOpen, setNewListingOpen] = useState(false);
   const [newListing, setNewListing] = useState({
     title: '', summary: '', description_md: '', city: 'Beijing',
-    price_amount: 500, price_unit: 'per_half_day', cover_image_url: '', languages: 'en,zh'
+    price_amount: 500, price_unit: 'per_half_day', cover_image_url: '', languages: 'en,zh',
+    images: '', map_links: ''
   });
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [reviewTarget, setReviewTarget] = useState<any>(null);
+  const [reviewStars, setReviewStars] = useState<number>(5);
+  const [reviewText, setReviewText] = useState('');
+  const [reviewMsg, setReviewMsg] = useState('');
 
   const loadRequests = async (userId: string, role: string) => {
     try {
@@ -93,20 +105,21 @@ export default function DashboardPage() {
 
   const createListing = async () => {
     setListingError('');
-    // Client-side validation with clear messages
     if (newListing.title.length < 5) { setListingError('Title must be at least 5 characters.'); return; }
-    if (newListing.summary.length < 10) { setListingError('Summary must be at least 10 characters. Describe what travelers will experience.'); return; }
-    if (newListing.description_md.length < 20) { setListingError('Description must be at least 20 characters. Tell the full story of your trip.'); return; }
+    if (newListing.summary.length < 10) { setListingError('Summary must be at least 10 characters.'); return; }
+    if (newListing.description_md.length < 20) { setListingError('Description must be at least 20 characters.'); return; }
     if (newListing.price_amount <= 0) { setListingError('Please set a price.'); return; }
     try {
       await api.post('/listings?guide_user_id=' + user.id, {
         ...newListing,
         languages: newListing.languages.split(',').map(s => s.trim()),
         price_amount: Number(newListing.price_amount),
+        images: newListing.images ? newListing.images.split('\n').map(s => s.trim()).filter(Boolean) : [],
+        map_links: newListing.map_links ? newListing.map_links.split('\n').map(s => s.trim()).filter(Boolean) : [],
       });
       setNewListingOpen(false);
       setListingError('');
-      setNewListing({ title: '', summary: '', description_md: '', city: 'Beijing', price_amount: 500, price_unit: 'per_half_day', cover_image_url: '', languages: 'en,zh' });
+      setNewListing({ title: '', summary: '', description_md: '', city: 'Beijing', price_amount: 500, price_unit: 'per_half_day', cover_image_url: '', languages: 'en,zh', images: '', map_links: '' });
       loadListings(user.id);
       setSaveMsg('Listing published! It will appear on the Guides page.');
     } catch (err: any) {
@@ -141,6 +154,42 @@ export default function DashboardPage() {
     } catch {}
   };
 
+  const markAsMet = async (requestId: string) => {
+    try {
+      await api.put('/service-requests/' + requestId + '/met?guide_user_id=' + user.id);
+      loadRequests(user.id, user.role);
+      setSaveMsg('Marked as met! Tourist can now leave a review.');
+    } catch (err: any) {
+      setSaveMsg('Failed: ' + (err?.response?.data?.detail || 'Unknown error'));
+    }
+  };
+
+  const openReviewDialog = (request: any) => {
+    setReviewTarget(request);
+    setReviewStars(5);
+    setReviewText('');
+    setReviewMsg('');
+    setReviewDialogOpen(true);
+  };
+
+  const submitReview = async () => {
+    setReviewMsg('');
+    if (!reviewTarget) return;
+    try {
+      await api.post('/reviews?reviewer_user_id=' + user.id, {
+        service_request_id: reviewTarget.id,
+        stars: reviewStars,
+        text: reviewText || null,
+      });
+      setReviewDialogOpen(false);
+      setReviewTarget(null);
+      loadRequests(user.id, user.role);
+      setSaveMsg('Review submitted! Thank you for your feedback.');
+    } catch (err: any) {
+      setReviewMsg('Failed: ' + (err?.response?.data?.detail || 'Unknown error'));
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('glc_token');
     localStorage.removeItem('glc_user');
@@ -154,6 +203,13 @@ export default function DashboardPage() {
   const touristTabs = ['My Requests', 'Profile'];
   const tabLabels = user.role === 'guide' ? guideTabs : touristTabs;
 
+  const formatHour = (h: number | null | undefined) => {
+    if (h === null || h === undefined) return '';
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const hour12 = h % 12 || 12;
+    return `${hour12}:00 ${ampm}`;
+  };
+
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       {/* Header */}
@@ -164,13 +220,15 @@ export default function DashboardPage() {
           </Avatar>
           <Box sx={{ flex: 1 }}>
             <Typography variant="h4" sx={{ fontWeight: 700 }}>{profile.display_name || user.email}</Typography>
-            <Chip label={user.role === 'guide' ? '🧭 Local Guide' : '🌍 Tourist'}
+            <Chip label={user.role === 'guide' ? 'Local Guide' : 'Tourist'}
               sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white', mt: 1, fontWeight: 600 }} />
           </Box>
           <Button startIcon={<LogoutIcon />} onClick={handleLogout}
             sx={{ color: 'white', border: '1px solid rgba(255,255,255,0.3)' }}>Log Out</Button>
         </Box>
       </Paper>
+
+      {saveMsg && <Alert severity={saveMsg.includes('Failed') ? 'error' : 'success'} sx={{ mb: 2 }} onClose={() => setSaveMsg('')}>{saveMsg}</Alert>}
 
       {/* Tabs */}
       <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3, '& .Mui-selected': { color: '#DC2626' }, '& .MuiTabs-indicator': { bgcolor: '#DC2626' } }}>
@@ -189,13 +247,30 @@ export default function DashboardPage() {
             <Alert severity="info">No listings yet. Create your first one to start connecting with travelers!</Alert>
           ) : (
             listings.map((l) => (
-              <Paper key={l.id} sx={{ p: 3, mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{l.title}</Typography>
-                  <Typography variant="body2" color="text.secondary">{l.city} · ¥{l.price_amount} {l.price_unit}</Typography>
-                  <Chip label={l.status} size="small" color={l.status === 'published' ? 'success' : 'default'} sx={{ mt: 0.5 }} />
+              <Paper key={l.id} sx={{ p: 3, mb: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{l.title}</Typography>
+                    <Typography variant="body2" color="text.secondary">{l.city} · ¥{l.price_amount} {l.price_unit}</Typography>
+                    <Box sx={{ display: 'flex', gap: 1, mt: 1, alignItems: 'center' }}>
+                      <Chip label={l.status} size="small" color={l.status === 'published' ? 'success' : 'default'} />
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <VisibilityIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                        <Typography variant="caption" color="text.secondary">{l.views || 0}</Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <FavoriteIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                        <Typography variant="caption" color="text.secondary">{l.likes || 0}</Typography>
+                      </Box>
+                      {l.created_at && (
+                        <Typography variant="caption" color="text.secondary">
+                          Posted {new Date(l.created_at).toLocaleDateString()}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+                  <IconButton color="error" onClick={() => deleteListing(l.id)}><DeleteIcon /></IconButton>
                 </Box>
-                <IconButton color="error" onClick={() => deleteListing(l.id)}><DeleteIcon /></IconButton>
               </Paper>
             ))
           )}
@@ -213,17 +288,26 @@ export default function DashboardPage() {
               <Paper key={r.id} sx={{ p: 3, mb: 2 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Box>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{r.service_date} · {r.party_size} {r.party_size > 1 ? 'people' : 'person'}</Typography>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                      {r.service_date}{r.service_time_hour !== null && r.service_time_hour !== undefined ? ` at ${formatHour(r.service_time_hour)}` : ''} · {r.party_size} {r.party_size > 1 ? 'people' : 'person'}
+                    </Typography>
                     <Typography variant="body2" color="text.secondary">¥{r.quoted_amount} · {r.language}</Typography>
                     {r.tourist_notes && <Typography variant="body2" sx={{ mt: 0.5, fontStyle: 'italic' }}>"{r.tourist_notes}"</Typography>}
                   </Box>
                   <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                    <Chip label={r.status} color={r.status === 'accepted' ? 'success' : r.status === 'pending' ? 'warning' : 'default'} />
+                    <Chip label={r.status} color={r.status === 'accepted' ? 'success' : r.status === 'met' ? 'info' : r.status === 'pending' ? 'warning' : 'default'} />
                     {r.status === 'pending' && (
                       <>
                         <Button size="small" variant="contained" color="success" onClick={() => acceptRequest(r.id)}>Accept</Button>
                         <Button size="small" variant="outlined" color="error" onClick={() => declineRequest(r.id)}>Decline</Button>
                       </>
+                    )}
+                    {r.status === 'accepted' && (
+                      <Button size="small" variant="contained" startIcon={<HandshakeIcon />}
+                        onClick={() => markAsMet(r.id)}
+                        sx={{ bgcolor: '#059669', '&:hover': { bgcolor: '#047857' } }}>
+                        We have met
+                      </Button>
                     )}
                   </Box>
                 </Box>
@@ -246,11 +330,25 @@ export default function DashboardPage() {
               <Paper key={r.id} sx={{ p: 3, mb: 2 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Box>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{r.service_date} · {r.party_size} {r.party_size > 1 ? 'people' : 'person'}</Typography>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                      {r.service_date}{r.service_time_hour !== null && r.service_time_hour !== undefined ? ` at ${formatHour(r.service_time_hour)}` : ''} · {r.party_size} {r.party_size > 1 ? 'people' : 'person'}
+                    </Typography>
                     <Typography variant="body2" color="text.secondary">¥{r.quoted_amount} {r.quoted_currency} · Language: {r.language}</Typography>
                     {r.tourist_notes && <Typography variant="body2" sx={{ mt: 0.5, fontStyle: 'italic' }}>"{r.tourist_notes}"</Typography>}
                   </Box>
-                  <Chip label={r.status} color={r.status === 'accepted' ? 'success' : r.status === 'pending' ? 'warning' : 'default'} />
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <Chip label={r.status} color={r.status === 'accepted' ? 'success' : r.status === 'met' ? 'info' : r.status === 'pending' ? 'warning' : 'default'} />
+                    {r.status === 'met' && !r.has_review && (
+                      <Button size="small" variant="contained" startIcon={<RateReviewIcon />}
+                        onClick={() => openReviewDialog(r)}
+                        sx={{ bgcolor: '#DC2626', '&:hover': { bgcolor: '#B91C1C' } }}>
+                        Write Review
+                      </Button>
+                    )}
+                    {r.has_review && (
+                      <Chip label="Reviewed" size="small" color="success" />
+                    )}
+                  </Box>
                 </Box>
               </Paper>
             ))
@@ -262,7 +360,6 @@ export default function DashboardPage() {
       {((user.role === 'guide' && tab === 2) || (user.role === 'tourist' && tab === 1)) && (
         <Paper sx={{ p: 4, borderRadius: 3 }}>
           <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Edit Profile</Typography>
-          {saveMsg && <Alert severity={saveMsg.includes('Failed') ? 'error' : 'success'} sx={{ mb: 2 }}>{saveMsg}</Alert>}
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
               <TextField fullWidth label="Display Name" value={profile.display_name || ''} onChange={(e) => up('display_name', e.target.value)} />
@@ -365,12 +462,47 @@ export default function DashboardPage() {
               <TextField fullWidth label="Cover Image URL (optional)" placeholder="https://..." value={newListing.cover_image_url}
                 onChange={(e) => setNewListing(p => ({ ...p, cover_image_url: e.target.value }))} />
             </Grid>
+            <Grid item xs={12}>
+              <TextField fullWidth label="Additional Image URLs (one per line)" placeholder={"https://image1.jpg\nhttps://image2.jpg"}
+                value={newListing.images} onChange={(e) => setNewListing(p => ({ ...p, images: e.target.value }))}
+                multiline rows={3} helperText="Add photos of the trip locations, food, scenery" />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField fullWidth label="Map Links (one per line)" placeholder={"https://maps.google.com/...\nhttps://maps.baidu.com/..."}
+                value={newListing.map_links} onChange={(e) => setNewListing(p => ({ ...p, map_links: e.target.value }))}
+                multiline rows={2} helperText="Google Maps, Baidu Maps, or Amap links to meeting points or key locations" />
+            </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setNewListingOpen(false)}>Cancel</Button>
           <Button variant="contained" onClick={createListing}
             sx={{ bgcolor: '#DC2626', '&:hover': { bgcolor: '#B91C1C' } }}>Publish Listing</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Review Dialog */}
+      <Dialog open={reviewDialogOpen} onClose={() => setReviewDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Write a Review</DialogTitle>
+        <DialogContent>
+          {reviewMsg && <Alert severity={reviewMsg.includes('Failed') ? 'error' : 'success'} sx={{ mb: 2 }}>{reviewMsg}</Alert>}
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            How was your experience with this guide?
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+            <Typography>Rating:</Typography>
+            <Rating value={reviewStars} onChange={(_, v) => setReviewStars(v || 5)} size="large" />
+          </Box>
+          <TextField fullWidth multiline rows={4} label="Your Review (optional)"
+            placeholder="Share your experience to help other travelers..."
+            value={reviewText} onChange={(e) => setReviewText(e.target.value)}
+            inputProps={{ maxLength: 2000 }}
+            helperText={`${reviewText.length}/2000 characters`} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setReviewDialogOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={submitReview}
+            sx={{ bgcolor: '#DC2626', '&:hover': { bgcolor: '#B91C1C' } }}>Submit Review</Button>
         </DialogActions>
       </Dialog>
     </Container>

@@ -13,6 +13,7 @@ class ServiceRequest(Base, UUIDMixin, TimestampMixin):
     guide_user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), nullable=False)
     listing_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("guide_listings.id"))
     service_date: Mapped[str] = mapped_column(String(10), nullable=False)
+    service_time_hour: Mapped[Optional[int]] = mapped_column(SmallInteger)  # 0-23, hour of day
     party_size: Mapped[int] = mapped_column(SmallInteger, default=1)
     language: Mapped[str] = mapped_column(String(10), nullable=False)
     tourist_notes: Mapped[Optional[str]] = mapped_column(Text)
@@ -29,3 +30,6 @@ class Review(Base, UUIDMixin, TimestampMixin):
     target_user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"))
     stars: Mapped[int] = mapped_column(SmallInteger, nullable=False)
     text: Mapped[Optional[str]] = mapped_column(Text)
+    # Guide reply fields
+    guide_reply: Mapped[Optional[str]] = mapped_column(Text)
+    guide_replied_at: Mapped[Optional[str]] = mapped_column(String(30))

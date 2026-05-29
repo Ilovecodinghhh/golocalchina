@@ -2,6 +2,9 @@ import { Card, CardContent, Typography, Box, Chip, Rating } from '@mui/material'
 import { Link } from 'react-router-dom';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import PlaceIcon from '@mui/icons-material/Place';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { useTranslation } from 'react-i18next';
 
 const DEFAULT_COVER = 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=600&q=80';
@@ -20,6 +23,24 @@ function convertPrice(cny: number): string {
     const [sym, rate] = FX[currency] || ['¥', 1];
     return sym + Math.round(cny * rate);
   } catch { return '¥' + cny; }
+}
+
+// Format relative time
+function formatRelativeTime(dateStr: string): string {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  
+  if (diffMins < 1) return 'just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
+  return date.toLocaleDateString();
 }
 
 interface Props {
@@ -107,13 +128,37 @@ export default function GuideListingCard({ listing }: Props) {
         </Typography>
 
         {/* Languages */}
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 1.5 }}>
           {(listing.languages || []).map((l: string) => (
             <Chip key={l} label={l.toUpperCase()} size="small" variant="outlined" sx={{ fontSize: '0.65rem', height: 22 }} />
           ))}
         </Box>
 
-        <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
+        {/* Stats: views, likes, post time */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1, flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
+            <VisibilityIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+            <Typography variant="caption" color="text.secondary">
+              {listing.views || 0}
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
+            <FavoriteIcon sx={{ fontSize: 14, color: '#DC2626' }} />
+            <Typography variant="caption" color="text.secondary">
+              {listing.likes || 0}
+            </Typography>
+          </Box>
+          {listing.created_at && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
+              <AccessTimeIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+              <Typography variant="caption" color="text.secondary">
+                {formatRelativeTime(listing.created_at)}
+              </Typography>
+            </Box>
+          )}
+        </Box>
+
+        <Typography variant="caption" color="text.secondary" display="block">
           {t('search.price_set_by_guide')} · {listing.price_unit === 'per_day' ? t('search.per_day') : listing.price_unit === 'per_hour' ? t('search.per_hour') : t('search.per_half_day')}
         </Typography>
       </CardContent>
