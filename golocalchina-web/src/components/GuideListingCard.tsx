@@ -1,11 +1,14 @@
-import { Card, CardContent, Typography, Box, Chip, Rating } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, Typography, Box, Chip, Rating, IconButton } from '@mui/material';
 import { Link } from 'react-router-dom';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import PlaceIcon from '@mui/icons-material/Place';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { useTranslation } from 'react-i18next';
+import api from '../services/api';
 
 const DEFAULT_COVER = 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=600&q=80';
 
@@ -43,6 +46,18 @@ function formatRelativeTime(dateStr: string): string {
   return date.toLocaleDateString();
 }
 
+// Get liked listings from localStorage
+function getLikedIds(): Set<string> {
+  try {
+    const stored = localStorage.getItem('glc_liked_listings');
+    return new Set(stored ? JSON.parse(stored) : []);
+  } catch { return new Set(); }
+}
+
+function setLikedIds(ids: Set<string>) {
+  localStorage.setItem('glc_liked_listings', JSON.stringify([...ids]));
+}
+
 interface Props {
   listing: any;
 }
@@ -50,6 +65,50 @@ interface Props {
 export default function GuideListingCard({ listing }: Props) {
   const { t } = useTranslation();
   const guide = listing.guide || {};
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(listing.likes || 0);
+  const [liking, setLiking] = useState(false);
+
+  useEffect(() => {
+    const likedIds = getLikedIds();
+    setLiked(likedIds.has(listing.id));
+    setLikeCount(listing.likes || 0);
+  }, [listing.id, listing.likes]);
+
+  const handleLike = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (liking) return;
+
+    const stored = localStorage.getItem('glc_user');
+    if (!stored) return;
+    const user = JSON.parse(stored);
+
+    setLiking(true);
+    const likedIds = getLikedIds();
+    const wasLiked = likedIds.has(listing.id);
+
+    try {
+      if (wasLiked) {
+        // Unlike
+        const res = await api.post(`/listings/${listing.id}/unlike?user_id=${user.id}`);
+        setLikeCount(res.data.likes_count);
+        likedIds.delete(listing.id);
+        setLiked(false);
+      } else {
+        // Like
+        const res = await api.post(`/listings/${listing.id}/like?user_id=${user.id}`);
+        setLikeCount(res.data.likes_count);
+        likedIds.add(listing.id);
+        setLiked(true);
+      }
+      setLikedIds(likedIds);
+    } catch (err) {
+      console.error('Like/unlike failed:', err);
+    } finally {
+      setLiking(false);
+    }
+  };
 
   return (
     <Card
@@ -134,7 +193,7 @@ export default function GuideListingCard({ listing }: Props) {
           ))}
         </Box>
 
-        {/* Stats: views, likes, post time */}
+        {/* Stats: views, likes (clickable), post time */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1, flexWrap: 'wrap' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
             <VisibilityIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
@@ -143,9 +202,20 @@ export default function GuideListingCard({ listing }: Props) {
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
-            <FavoriteIcon sx={{ fontSize: 14, color: '#DC2626' }} />
+            <IconButton
+              onClick={handleLike}
+              disabled={liking}
+              size="small"
+              sx={{ p: 0.3 }}
+            >
+              {liked ? (
+                <FavoriteIcon sx={{ fontSize: 16, color: '#DC2626' }} />
+              ) : (
+                <FavoriteBorderIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+              )}
+            </IconButton>
             <Typography variant="caption" color="text.secondary">
-              {listing.likes || 0}
+              {likeCount}
             </Typography>
           </Box>
           {listing.created_at && (

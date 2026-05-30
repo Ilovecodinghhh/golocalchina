@@ -8,6 +8,10 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 import PlaceIcon from '@mui/icons-material/Place';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import IconButton from '@mui/material/IconButton';
 import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import AdBanner from '../components/AdBanner';
@@ -23,6 +27,15 @@ export default function ListingDetailPage() {
   const [connectOpen, setConnectOpen] = useState(false);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+
+  useEffect(() => {
+    if (id) {
+      const likedListings = JSON.parse(localStorage.getItem('glc_liked_listings') || '{}');
+      setLiked(!!likedListings[id]);
+    }
+  }, [id]);
 
   useEffect(() => {
     const load = async () => {
@@ -30,6 +43,7 @@ export default function ListingDetailPage() {
         const res = await api.get('/explore/listings/' + id);
         if (res.data && !res.data.error) {
           setListing(res.data);
+          setLikeCount(res.data.likes || 0);
         }
       } catch {}
       setLoading(false);
@@ -64,6 +78,31 @@ export default function ListingDetailPage() {
     }
   };
 
+  const handleLike = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const stored = localStorage.getItem('glc_user');
+    if (!stored) { navigate('/login'); return; }
+    const user = JSON.parse(stored);
+    const likedListings = JSON.parse(localStorage.getItem('glc_liked_listings') || '{}');
+    
+    try {
+      if (liked) {
+        await api.post(`/listings/${id}/unlike?user_id=${user.id}`);
+        delete likedListings[id!];
+        setLikeCount(prev => Math.max(0, prev - 1));
+      } else {
+        await api.post(`/listings/${id}/like?user_id=${user.id}`);
+        likedListings[id!] = true;
+        setLikeCount(prev => prev + 1);
+      }
+      localStorage.setItem('glc_liked_listings', JSON.stringify(likedListings));
+      setLiked(!liked);
+    } catch (err) {
+      console.error('Like failed:', err);
+    }
+  };
+
   if (loading) return <Container sx={{ py: 8, textAlign: 'center' }}><Typography>Loading...</Typography></Container>;
   if (!listing) return (
     <Container sx={{ py: 8, textAlign: 'center' }}>
@@ -88,9 +127,24 @@ export default function ListingDetailPage() {
         <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 50%)' }} />
         <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', pb: 4 }}>
           <Chip icon={<PlaceIcon />} label={listing.city} sx={{ bgcolor: 'rgba(255,255,255,0.9)', mb: 1, width: 'fit-content' }} />
-          <Typography variant="h3" sx={{ color: 'white', fontWeight: 800, textShadow: '2px 2px 8px rgba(0,0,0,0.5)', fontSize: { xs: '1.8rem', md: '2.5rem' } }}>
-            {listing.title}
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Typography variant="h3" sx={{ color: 'white', fontWeight: 800, textShadow: '2px 2px 8px rgba(0,0,0,0.5)', fontSize: { xs: '1.8rem', md: '2.5rem' } }}>
+              {listing.title}
+            </Typography>
+            <IconButton onClick={handleLike} sx={{ color: 'white', bgcolor: 'rgba(255,255,255,0.2)', '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' } }}>
+              {liked ? <FavoriteIcon sx={{ color: '#DC2626' }} /> : <FavoriteBorderIcon />}
+            </IconButton>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'rgba(255,255,255,0.9)' }}>
+              <VisibilityIcon sx={{ fontSize: 18 }} />
+              <Typography variant="body2">{listing.views || 0}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'rgba(255,255,255,0.9)' }}>
+              <FavoriteIcon sx={{ fontSize: 18, color: liked ? '#DC2626' : 'rgba(255,255,255,0.9)' }} />
+              <Typography variant="body2">{likeCount}</Typography>
+            </Box>
+          </Box>
         </Container>
       </Box>
 
