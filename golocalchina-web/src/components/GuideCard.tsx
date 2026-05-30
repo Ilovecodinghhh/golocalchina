@@ -51,7 +51,7 @@ export default function GuideCard({ guide }: Props) {
       {/* Trip thumbnail — shows the experience, not just the guide's face */}
       <Box sx={{ position: 'relative', height: 200, overflow: 'hidden' }}>
         <Box component="img"
-          src={trip?.cover_url || `https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=600&q=80`}
+          src={trip?.cover_url || `/images/Beijing.jpg`}
           alt={trip?.title || guide.display_name}
           sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />

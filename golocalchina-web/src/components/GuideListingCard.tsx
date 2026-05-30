@@ -10,7 +10,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 
-const DEFAULT_COVER = 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=600&q=80';
+const DEFAULT_COVER = '/images/Beijing.jpg';
 
 // Currency conversion
 const FX: Record<string, [string, number]> = {

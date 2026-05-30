@@ -38,8 +38,8 @@ const MOCK_DETAIL = {
       price_currency: 'CNY', 
       price_unit: 'per_half_day',
       images: [
-        'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=400&q=80',
-        'https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=400&q=80',
+        '/images/Beijing.jpg',
+        '/images/Shanghai.jpg',
       ],
       map_links: ['https://maps.google.com/?q=Beijing+Hutongs'],
     },
@@ -52,7 +52,7 @@ const MOCK_DETAIL = {
       price_currency: 'CNY', 
       price_unit: 'per_day',
       images: [
-        'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=400&q=80',
+        '/images/Beijing.jpg',
       ],
       map_links: ['https://maps.google.com/?q=Jinshanling+Great+Wall'],
     },

@@ -5,6 +5,9 @@ import { useState, useEffect } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
 import HandshakeIcon from '@mui/icons-material/Handshake';
 import ExploreIcon from '@mui/icons-material/Explore';
+import EditNoteIcon from '@mui/icons-material/EditNote';
+import LightbulbIcon from '@mui/icons-material/Lightbulb';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 
 // User-uploaded China scenic photos
 const HERO_IMAGES = [
@@ -124,12 +127,37 @@ export default function HomePage() {
       {/* How it works */}
       <Box sx={{ bgcolor: '#FEF2F2', py: 8 }}>
         <Container maxWidth="lg">
-          <Typography variant="h4" align="center" sx={{ fontWeight: 800, mb: 5 }}>How It Works</Typography>
+          <Typography variant="h4" align="center" sx={{ fontWeight: 800, mb: 1 }}>How It Works</Typography>
+          <Typography variant="body1" align="center" color="text.secondary" sx={{ mb: 5 }}>
+            Whether you're exploring China or guiding others through it
+          </Typography>
+
+          {/* For Travelers */}
+          <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#DC2626' }}>For Travelers</Typography>
+          <Grid container spacing={4} sx={{ mb: 6 }}>
+            {[
+              { icon: <SearchIcon sx={{ fontSize: 40 }} />, num: '01', title: 'Find Your Guide', desc: 'Head to /guides and browse verified local guides by city. Read their profiles, see specialties, languages, and pricing — then send a request directly.' },
+              { icon: <EditNoteIcon sx={{ fontSize: 40 }} />, num: '02', title: 'Share & Connect', desc: 'Visit /posts to share your travel stories, ask questions, or exchange tips with fellow travelers. Build your itinerary with real local insights.' },
+              { icon: <ExploreIcon sx={{ fontSize: 40 }} />, num: '03', title: 'Explore & Pay Direct', desc: 'Meet your guide in person. Pay them directly — cash, Alipay, or WeChat Pay. Zero platform fees. The full experience goes to your guide.' },
+            ].map((step, i) => (
+              <Grid item xs={12} md={4} key={i}>
+                <Box sx={{ textAlign: 'center', px: 2 }}>
+                  <Typography variant="h1" sx={{ fontWeight: 900, color: '#DC2626', opacity: 0.15, fontSize: 80, lineHeight: 1 }}>{step.num}</Typography>
+                  <Box sx={{ color: '#DC2626', mt: -3, mb: 2 }}>{step.icon}</Box>
+                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>{step.title}</Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>{step.desc}</Typography>
+                </Box>
+              </Grid>
+            ))}
+          </Grid>
+
+          {/* For Guides */}
+          <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#DC2626' }}>For Guides</Typography>
           <Grid container spacing={4}>
             {[
-              { icon: <SearchIcon sx={{ fontSize: 40 }} />, num: '01', title: 'Browse Guides', desc: 'Search local guides by city. View their profiles, specialties, languages, and pricing. All guides are verified locals.' },
-              { icon: <HandshakeIcon sx={{ fontSize: 40 }} />, num: '02', title: 'Request Service', desc: 'Send a service request to your chosen guide. Discuss your itinerary, meeting point, and preferences directly.' },
-              { icon: <ExploreIcon sx={{ fontSize: 40 }} />, num: '03', title: 'Meet & Explore', desc: 'Meet your guide in person. Pay directly — cash, Alipay, or WeChat Pay. No platform fees. Share your experience in Community Posts!' },
+              { icon: <LightbulbIcon sx={{ fontSize: 40 }} />, num: '01', title: 'Design Your Trip', desc: 'Create listings that showcase your unique perspective. Focus on hidden gems only locals know — a family recipe, a quiet temple at dawn, a story no guidebook tells.' },
+              { icon: <AttachMoneyIcon sx={{ fontSize: 40 }} />, num: '02', title: 'Set Your Price', desc: 'You decide your rate, schedule, and group size. No commission taken. Travelers pay you directly — you keep 100% of what you earn.' },
+              { icon: <HandshakeIcon sx={{ fontSize: 40 }} />, num: '03', title: 'Connect & Deliver', desc: 'Respond to requests, plan the details with your guest, and deliver an unforgettable experience. Great reviews bring more travelers your way.' },
             ].map((step, i) => (
               <Grid item xs={12} md={4} key={i}>
                 <Box sx={{ textAlign: 'center', px: 2 }}>

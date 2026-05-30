@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import AdBanner from '../components/AdBanner';
 
-const DEFAULT_COVER = 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=1920&q=80';
+const DEFAULT_COVER = '/images/Beijing.jpg';
 
 export default function ListingDetailPage() {
   const { id } = useParams<{ id: string }>();
