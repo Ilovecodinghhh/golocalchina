@@ -7,6 +7,10 @@ import ExploreIcon from '@mui/icons-material/Explore';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import MoneyOffIcon from '@mui/icons-material/MoneyOff';
 import SecurityIcon from '@mui/icons-material/Security';
+import EditNoteIcon from '@mui/icons-material/EditNote';
+import LightbulbIcon from '@mui/icons-material/Lightbulb';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import HandshakeIcon from '@mui/icons-material/Handshake';
 
 export default function HowItWorksPage() {
   const { t } = useTranslation();
@@ -25,40 +29,47 @@ export default function HowItWorksPage() {
         </Container>
       </Box>
 
-      {/* 3 Steps — detailed */}
+      {/* For Travelers */}
       <Container maxWidth="md" sx={{ py: 8 }}>
+        <Typography variant="h4" sx={{ fontWeight: 800, mb: 1, color: '#DC2626' }}>For Travelers</Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 5 }}>
+          Find a local guide, connect with fellow travelers, and explore China your way.
+        </Typography>
         {[
           {
             icon: <SearchIcon sx={{ fontSize: 48 }} />, num: '1',
-            title: t('how.step1_title'), desc: t('how.step1_desc'),
+            title: 'Find Your Guide at /guides',
+            desc: 'Browse verified local guides by city, language, and specialty. Every guide sets their own price and designs their own trip.',
             details: [
               'Filter by city: Beijing, Shanghai, Xi\'an, Chengdu, Guilin, Hangzhou',
               'Filter by language: English, Chinese, Japanese, Korean, French, and more',
               'Filter by specialty: History, Food, Nature, Photography, Nightlife',
-              'Read reviews from real travelers who have used the guide',
-              'Certified guides display a verified badge — their tour guide license (导游证) has been checked',
+              'Read guide profiles — see their bio, specialties, and pricing upfront',
+              'Certified guides display a verified badge — their 导游证 has been checked',
             ],
           },
           {
-            icon: <ChatIcon sx={{ fontSize: 48 }} />, num: '2',
-            title: t('how.step2_title'), desc: t('how.step2_desc'),
+            icon: <EditNoteIcon sx={{ fontSize: 48 }} />, num: '2',
+            title: 'Share & Connect at /posts',
+            desc: 'The community board is where travelers meet travelers. Post your stories, ask questions, and plan together.',
             details: [
-              'Send a free connection request to any guide',
-              'The guide accepts or declines — it\'s their choice',
-              'Chat to discuss what you want to see and do',
-              'The guide suggests a plan based on your interests',
-              'Agree on meeting time, place, and price',
+              'Share your travel experiences and photos with the community',
+              'Ask questions before your trip — get answers from people who\'ve been there',
+              'Exchange tips on routes, restaurants, and hidden gems',
+              'Like and engage with posts from fellow travelers',
+              'Build your itinerary with real local insights from the community',
             ],
           },
           {
             icon: <ExploreIcon sx={{ fontSize: 48 }} />, num: '3',
-            title: t('how.step3_title'), desc: t('how.step3_desc'),
+            title: 'Explore & Pay Direct',
+            desc: 'Meet your guide in person and enjoy an authentic local experience. No middleman, no platform fees.',
             details: [
+              'Send a free connection request to any guide',
+              'Discuss your interests, schedule, and meeting point directly',
               'Meet your guide at the agreed location',
-              'Enjoy an authentic local experience',
-              'Pay your guide directly — no platform fees whatsoever',
-              'Accepted: Cash (CNY or USD), Alipay, WeChat Pay',
-              'Leave a review to help future travelers',
+              'Pay your guide directly — Cash (CNY/USD), Alipay, or WeChat Pay',
+              'Leave a review to help future travelers find great guides',
             ],
           },
         ].map((step, i) => (
@@ -88,6 +99,79 @@ export default function HowItWorksPage() {
           </Box>
         ))}
       </Container>
+
+      {/* For Guides */}
+      <Box sx={{ bgcolor: '#FEF2F2', py: 8 }}>
+        <Container maxWidth="md">
+          <Typography variant="h4" sx={{ fontWeight: 800, mb: 1, color: '#DC2626' }}>For Guides</Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 5 }}>
+            Design trips your way. Set your own price, schedule, and style. Keep 100% of what you earn.
+          </Typography>
+          {[
+            {
+              icon: <LightbulbIcon sx={{ fontSize: 48 }} />, num: '1',
+              title: 'Design Your Trip',
+              desc: 'Create listings that showcase your unique perspective as a local. The best trips are the ones no guidebook can offer.',
+              details: [
+                'Focus on hidden gems only locals know — a family recipe, a quiet temple at dawn',
+                'Tell a story: what makes YOUR version of this city different from anyone else\'s?',
+                'Write a compelling summary — this is what travelers see first on the card',
+                'Include specific details: meeting points, duration, what\'s included, group size',
+                'Use high-quality photos that show the real experience, not stock images',
+              ],
+            },
+            {
+              icon: <AttachMoneyIcon sx={{ fontSize: 48 }} />, num: '2',
+              title: 'Set Your Price',
+              desc: 'You decide your rate, schedule, and group size. No commission is taken — travelers pay you directly.',
+              details: [
+                'Choose your pricing: per hour, per half day, or per full day',
+                'Set a fair price that reflects your expertise and the value you provide',
+                'Specify your accepted payment methods: Cash, Alipay, WeChat Pay',
+                'You can update your listings and pricing anytime',
+                'Travelers see your price upfront — no surprises, no haggling',
+              ],
+            },
+            {
+              icon: <HandshakeIcon sx={{ fontSize: 48 }} />, num: '3',
+              title: 'Connect & Deliver',
+              desc: 'Respond to requests, plan the details with your guest, and deliver an unforgettable experience.',
+              details: [
+                'Respond to connection requests promptly — travelers appreciate quick replies',
+                'Discuss interests and preferences before the trip to personalize the experience',
+                'Be flexible: adapt the itinerary to weather, energy levels, and spontaneous discoveries',
+                'Great experiences lead to great reviews — and more travelers finding you',
+                'Build your reputation: certified guides with good reviews get more bookings',
+              ],
+            },
+          ].map((step, i) => (
+            <Box key={i} sx={{ mb: 6 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 2 }}>
+                <Box sx={{
+                  width: 72, height: 72, borderRadius: '50%', bgcolor: 'white',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#DC2626',
+                  flexShrink: 0,
+                }}>
+                  {step.icon}
+                </Box>
+                <Box>
+                  <Typography variant="overline" sx={{ color: '#DC2626', fontWeight: 700 }}>Step {step.num}</Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 700 }}>{step.title}</Typography>
+                </Box>
+              </Box>
+              <Typography variant="body1" sx={{ mb: 2, ml: { md: '104px' } }}>{step.desc}</Typography>
+              <Box sx={{ ml: { md: '104px' } }}>
+                {step.details.map((d, j) => (
+                  <Typography key={j} variant="body2" color="text.secondary" sx={{ mb: 0.5, pl: 2, borderLeft: '2px solid #DC2626' }}>
+                    {d}
+                  </Typography>
+                ))}
+              </Box>
+              {i < 2 && <Divider sx={{ mt: 4 }} />}
+            </Box>
+          ))}
+        </Container>
+      </Box>
 
       {/* Why GoLocalChina */}
       <Box sx={{ bgcolor: '#FEF2F2', py: 8 }}>
