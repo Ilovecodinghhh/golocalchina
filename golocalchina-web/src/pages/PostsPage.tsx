@@ -7,8 +7,28 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+
+function timeAgo(dateStr: string): string {
+  const now = new Date();
+  const date = new Date(dateStr);
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  if (seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}mo ago`;
+  return `${Math.floor(months / 12)}y ago`;
+}
 
 export default function PostsPage() {
   const navigate = useNavigate();
@@ -18,6 +38,7 @@ export default function PostsPage() {
   const [newPost, setNewPost] = useState({ title: '', content: '', images: '' });
   const [postError, setPostError] = useState('');
   const [msg, setMsg] = useState('');
+  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const stored = localStorage.getItem('glc_user');
@@ -27,6 +48,7 @@ export default function PostsPage() {
     }
     setUser(JSON.parse(stored));
     loadPosts();
+    loadLikedPosts();
   }, [navigate]);
 
   const loadPosts = async () => {
@@ -35,6 +57,42 @@ export default function PostsPage() {
       setPosts(res.data.posts || []);
     } catch (err) {
       console.error('Failed to load posts:', err);
+    }
+  };
+
+  const loadLikedPosts = async () => {
+    try {
+      const stored = localStorage.getItem('glc_user');
+      if (!stored) return;
+      const u = JSON.parse(stored);
+      const res = await api.get(`/posts/liked?user_id=${u.id}`);
+      setLikedPosts(new Set(res.data.liked_post_ids || []));
+    } catch (err) {
+      console.error('Failed to load liked posts:', err);
+    }
+  };
+
+  const toggleLike = async (postId: string) => {
+    try {
+      if (likedPosts.has(postId)) {
+        await api.delete(`/posts/${postId}/like?user_id=${user.id}`);
+        setLikedPosts(prev => {
+          const next = new Set(prev);
+          next.delete(postId);
+          return next;
+        });
+        setPosts(prev => prev.map(p => 
+          p.id === postId ? { ...p, like_count: Math.max(0, (p.like_count || 0) - 1) } : p
+        ));
+      } else {
+        await api.post(`/posts/${postId}/like?user_id=${user.id}`);
+        setLikedPosts(prev => new Set(prev).add(postId));
+        setPosts(prev => prev.map(p => 
+          p.id === postId ? { ...p, like_count: (p.like_count || 0) + 1 } : p
+        ));
+      }
+    } catch (err: any) {
+      alert('Failed: ' + (err?.response?.data?.detail || 'Unknown error'));
     }
   };
 
@@ -141,7 +199,7 @@ export default function PostsPage() {
                     )}
                   </Box>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    By {post.author.display_name} · {new Date(post.created_at).toLocaleDateString()}
+                    By {post.author.display_name} · {timeAgo(post.created_at)}
                   </Typography>
                   <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.8 }}>
                     {post.content}
@@ -160,28 +218,57 @@ export default function PostsPage() {
                     </Box>
                   )}
                 </CardContent>
-                {post.author.user_id === user.id && (
-                  <CardActions>
-                    {!post.is_done && (
+                <CardActions sx={{ display: 'flex', justifyContent: 'space-between', px: 2, pb: 2 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <IconButton 
+                      onClick={() => toggleLike(post.id)}
+                      color={likedPosts.has(post.id) ? 'error' : 'default'}
+                      size="small"
+                    >
+                      {likedPosts.has(post.id) ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                    </IconButton>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <FavoriteBorderIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                      <Typography variant="body2" color="text.secondary">
+                        {post.like_count || 0}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <VisibilityIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                      <Typography variant="body2" color="text.secondary">
+                        {post.view_count || 0}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <AccessTimeIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                      <Typography variant="body2" color="text.secondary">
+                        {timeAgo(post.created_at)}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  {post.author.user_id === user.id && (
+                    <Box>
+                      {!post.is_done && (
+                        <Button
+                          size="small"
+                          startIcon={<CheckCircleIcon />}
+                          onClick={() => markAsDone(post.id)}
+                          color="success"
+                        >
+                          Done
+                        </Button>
+                      )}
                       <Button
                         size="small"
-                        startIcon={<CheckCircleIcon />}
-                        onClick={() => markAsDone(post.id)}
-                        color="success"
+                        startIcon={<DeleteIcon />}
+                        onClick={() => deletePost(post.id)}
+                        color="error"
                       >
-                        Mark as Done
+                        Delete
                       </Button>
-                    )}
-                    <Button
-                      size="small"
-                      startIcon={<DeleteIcon />}
-                      onClick={() => deletePost(post.id)}
-                      color="error"
-                    >
-                      Delete
-                    </Button>
-                  </CardActions>
-                )}
+                    </Box>
+                  )}
+                </CardActions>
               </Card>
             </Grid>
           ))}

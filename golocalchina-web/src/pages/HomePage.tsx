@@ -127,9 +127,9 @@ export default function HomePage() {
           <Typography variant="h4" align="center" sx={{ fontWeight: 800, mb: 5 }}>How It Works</Typography>
           <Grid container spacing={4}>
             {[
-              { icon: <SearchIcon sx={{ fontSize: 40 }} />, num: '01', title: 'Browse & Choose', desc: 'Search guides by city and language. Read real reviews. Certified guides have verified licenses.' },
-              { icon: <HandshakeIcon sx={{ fontSize: 40 }} />, num: '02', title: 'Connect & Plan', desc: 'Send a connection request. Chat with your guide to plan the perfect day — hidden gems, best food, local stories.' },
-              { icon: <ExploreIcon sx={{ fontSize: 40 }} />, num: '03', title: 'Meet & Explore', desc: 'Meet in person. Pay directly — cash, Alipay, or WeChat Pay. No middleman, no fees. Just you and a local.' },
+              { icon: <SearchIcon sx={{ fontSize: 40 }} />, num: '01', title: 'Browse Guides', desc: 'Search local guides by city. View their profiles, specialties, languages, and pricing. All guides are verified locals.' },
+              { icon: <HandshakeIcon sx={{ fontSize: 40 }} />, num: '02', title: 'Request Service', desc: 'Send a service request to your chosen guide. Discuss your itinerary, meeting point, and preferences directly.' },
+              { icon: <ExploreIcon sx={{ fontSize: 40 }} />, num: '03', title: 'Meet & Explore', desc: 'Meet your guide in person. Pay directly — cash, Alipay, or WeChat Pay. No platform fees. Share your experience in Community Posts!' },
             ].map((step, i) => (
               <Grid item xs={12} md={4} key={i}>
                 <Box sx={{ textAlign: 'center', px: 2 }}>

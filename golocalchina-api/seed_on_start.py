@@ -2,8 +2,9 @@
 import asyncio
 import uuid
 from app.core.database import create_tables, async_session, engine
-from app.models.user import User, GuideProfile
+from app.models.user import User, GuideProfile, TouristProfile
 from app.models.listing import GuideListing
+from app.models.post import TouristPost
 from app.core.security import hash_password
 from sqlalchemy import select, func
 
@@ -47,6 +48,45 @@ GUIDES = [
     },
 ]
 
+MOCK_POSTS = [
+    {
+        "title": "Mock: Best Street Food in Beijing's Hutongs",
+        "content": "Just spent 3 days exploring Beijing's hidden hutongs with Li Wei. The jianbing at dawn was incredible, and the tea ceremony in the 400-year-old courtyard was the highlight of my trip. Highly recommend the roast duck at the local spot he took us to — way better than the tourist restaurants!",
+        "images": ["/images/Beijing.jpg"],
+        "city": "Beijing",
+    },
+    {
+        "title": "Mock: Shanghai Photography Tour — Worth Every Yuan",
+        "content": "Zhang Mei's photography walk was amazing. She knows all the hidden spots in the French Concession and taught me composition techniques I never knew. The Bund at golden hour with her guidance resulted in the best photos I've ever taken. If you love photography, this is a must-do!",
+        "images": ["/images/Shanghai.jpg"],
+        "city": "Shanghai",
+    },
+    {
+        "title": "Mock: Terracotta Warriors — History Comes Alive",
+        "content": "Wang Jun's knowledge of the Terracotta Warriors is incredible. He spent 20 years researching them and it shows. The stories about assassination attempts and mercury rivers made the visit so much more engaging than just looking at statues. The Muslim Quarter lunch was also fantastic!",
+        "images": ["/images/Xian.jpg"],
+        "city": "Xian",
+    },
+    {
+        "title": "Mock: Pandas and Hot Pot — Perfect Chengdu Day",
+        "content": "Chen Xiao's full-day tour was the highlight of our China trip. Morning with the pandas before the crowds, afternoon cooking real mapo tofu with his grandmother (she's 82 and still amazing!), and evening at the best hot pot restaurant in Chengdu. Spicy but unforgettable!",
+        "images": ["/images/Chengdu.jpg"],
+        "city": "Chengdu",
+    },
+    {
+        "title": "Mock: Guilin's Karst Mountains — Breathtaking Views",
+        "content": "The Li River cruise through the karst mountains was absolutely stunning. Our guide knew all the best photo spots and told us fascinating stories about the local fishing communities. The rice terraces in the afternoon were equally impressive. Guilin should be on everyone's China itinerary!",
+        "images": ["/images/Guilin.jpg"],
+        "city": "Guilin",
+    },
+    {
+        "title": "Mock: West Lake and Dragon Well Tea — Hangzhou's Charm",
+        "content": "Hangzhou exceeded all expectations. The West Lake boat ride at sunset was magical, and the Dragon Well tea plantation visit was fascinating. Our guide showed us the traditional tea ceremony and we bought some amazing tea to bring home. The silk market was also worth a visit!",
+        "images": ["/images/Hangzhou.jpg"],
+        "city": "Hangzhou",
+    },
+]
+
 
 async def seed():
     """Seed demo data if DB is empty."""
@@ -58,6 +98,8 @@ async def seed():
             return
 
         print("[Seed] Empty DB — seeding demo data...")
+        
+        # Seed guides and listings
         for g in GUIDES:
             uid = str(uuid.uuid4())
             user = User(id=uid, email=g["email"], password_hash=hash_password("Demo#2024!"), role="guide", status="active")
@@ -82,6 +124,45 @@ async def seed():
 
             await session.flush()
             print(f"  [Seed] {g['name']} + {len(g['listings'])} listings")
+
+        # Create a demo tourist user for mock posts
+        tourist_uid = str(uuid.uuid4())
+        tourist_user = User(
+            id=tourist_uid,
+            email="tourist@demo.golocalchina.com",
+            password_hash=hash_password("Demo#2024!"),
+            role="tourist",
+            status="active"
+        )
+        session.add(tourist_user)
+        await session.flush()
+
+        tourist_profile = TouristProfile(
+            user_id=tourist_uid,
+            display_name="Travel Explorer",
+            nationality="US",
+            preferred_currency="USD",
+            preferred_languages=["en"],
+        )
+        session.add(tourist_profile)
+        await session.flush()
+        print(f"  [Seed] Demo tourist user created")
+
+        # Seed mock posts
+        for mp in MOCK_POSTS:
+            post = TouristPost(
+                author_user_id=tourist_uid,
+                title=mp["title"],
+                content=mp["content"],
+                images=mp["images"],
+                is_done=False,
+                view_count=0,
+                like_count=0,
+            )
+            session.add(post)
+        
+        await session.flush()
+        print(f"  [Seed] {len(MOCK_POSTS)} mock posts created")
 
         await session.commit()
         print("[Seed] Done — seeded demo data.")

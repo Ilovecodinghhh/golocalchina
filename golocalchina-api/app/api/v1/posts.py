@@ -5,8 +5,8 @@ from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
-from app.models.post import TouristPost
-from app.models.user import User
+from app.models.post import TouristPost, PostLike
+from app.models.user import User, TouristProfile
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 
@@ -30,10 +30,36 @@ async def create_post(
         content=req.content,
         images=req.images,
         is_done=False,
+        view_count=0,
+        like_count=0,
     )
     db.add(post)
     await db.flush()
     return {"id": post.id, "title": post.title, "message": "Post created"}
+
+
+async def get_author_info(db: AsyncSession, author_user_id: str) -> dict:
+    """Helper to get author display info."""
+    user_result = await db.execute(
+        select(User).where(User.id == author_user_id)
+    )
+    author = user_result.scalar_one_or_none()
+    
+    if not author:
+        return {"user_id": "", "display_name": "Anonymous"}
+    
+    # Try to get tourist profile display name
+    profile_result = await db.execute(
+        select(TouristProfile).where(TouristProfile.user_id == author_user_id)
+    )
+    profile = profile_result.scalar_one_or_none()
+    
+    display_name = profile.display_name if profile else (author.email or "Anonymous")
+    
+    return {
+        "user_id": author.id,
+        "display_name": display_name,
+    }
 
 
 @router.get("")
@@ -50,11 +76,7 @@ async def list_posts(
 
     posts_out = []
     for post in all_posts:
-        user_result = await db.execute(
-            select(User).where(User.id == post.author_user_id)
-        )
-        author = user_result.scalar_one_or_none()
-
+        author = await get_author_info(db, post.author_user_id)
         display_title = f"[DONE] {post.title}" if post.is_done else post.title
 
         posts_out.append({
@@ -63,11 +85,10 @@ async def list_posts(
             "content": post.content,
             "images": post.images if isinstance(post.images, list) else [],
             "is_done": post.is_done,
+            "view_count": post.view_count or 0,
+            "like_count": post.like_count or 0,
             "created_at": post.created_at,
-            "author": {
-                "user_id": author.id if author else "",
-                "display_name": author.display_name if author else "Anonymous",
-            }
+            "author": author,
         })
 
     total = len(posts_out)
@@ -79,7 +100,7 @@ async def list_posts(
 
 @router.get("/{post_id}")
 async def get_post(post_id: str, db: AsyncSession = Depends(get_db)):
-    """Get a single post with author info."""
+    """Get a single post with author info. Increments view count."""
     result = await db.execute(
         select(TouristPost).where(TouristPost.id == post_id)
     )
@@ -87,11 +108,11 @@ async def get_post(post_id: str, db: AsyncSession = Depends(get_db)):
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
 
-    user_result = await db.execute(
-        select(User).where(User.id == post.author_user_id)
-    )
-    author = user_result.scalar_one_or_none()
+    # Increment view count
+    post.view_count = (post.view_count or 0) + 1
+    await db.flush()
 
+    author = await get_author_info(db, post.author_user_id)
     display_title = f"[DONE] {post.title}" if post.is_done else post.title
 
     return {
@@ -100,12 +121,66 @@ async def get_post(post_id: str, db: AsyncSession = Depends(get_db)):
         "content": post.content,
         "images": post.images if isinstance(post.images, list) else [],
         "is_done": post.is_done,
+        "view_count": post.view_count,
+        "like_count": post.like_count or 0,
         "created_at": post.created_at,
-        "author": {
-            "user_id": author.id if author else "",
-            "display_name": author.display_name if author else "Anonymous",
-        }
+        "author": author,
     }
+
+
+@router.post("/{post_id}/like")
+async def like_post(
+    post_id: str,
+    user_id: str = Query(...),
+    db: AsyncSession = Depends(get_db),
+):
+    """Like or unlike a post. Toggles like status."""
+    # Check post exists
+    result = await db.execute(
+        select(TouristPost).where(TouristPost.id == post_id)
+    )
+    post = result.scalar_one_or_none()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    # Check if already liked
+    like_result = await db.execute(
+        select(PostLike).where(
+            PostLike.post_id == post_id,
+            PostLike.user_id == user_id,
+        )
+    )
+    existing_like = like_result.scalar_one_or_none()
+
+    if existing_like:
+        # Unlike
+        await db.delete(existing_like)
+        post.like_count = max(0, (post.like_count or 0) - 1)
+        await db.flush()
+        return {"liked": False, "like_count": post.like_count}
+    else:
+        # Like
+        new_like = PostLike(post_id=post_id, user_id=user_id)
+        db.add(new_like)
+        post.like_count = (post.like_count or 0) + 1
+        await db.flush()
+        return {"liked": True, "like_count": post.like_count}
+
+
+@router.get("/{post_id}/liked")
+async def check_liked(
+    post_id: str,
+    user_id: str = Query(...),
+    db: AsyncSession = Depends(get_db),
+):
+    """Check if user has liked a post."""
+    result = await db.execute(
+        select(PostLike).where(
+            PostLike.post_id == post_id,
+            PostLike.user_id == user_id,
+        )
+    )
+    return {"liked": result.scalar_one_or_none() is not None}
 
 
 @router.put("/{post_id}/done")
