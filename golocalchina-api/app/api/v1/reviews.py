@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.models.booking import ServiceRequest, Review
 from app.models.user import GuideProfile, TouristProfile
-from app.schemas.review import CreateReview, GuideReply, ReviewResponse, ReviewStats, ReviewListResponse
+from app.schemas.review import CreateReview, GuideReply, ReviewResponse, ReviewStats
 
 router = APIRouter(prefix="/reviews", tags=["reviews"])
 

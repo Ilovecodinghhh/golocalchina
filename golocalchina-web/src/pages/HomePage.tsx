@@ -18,27 +18,27 @@ const HERO_IMAGES = [
 
 const CITY_IMAGES: Record<string, { img: string; emoji: string; desc: string }> = {
   Beijing: {
-    img: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=600&q=80',  // Forbidden City / Temple of Heaven
+    img: '/images/Beijing.jpg',  // Forbidden City / Temple of Heaven
     emoji: '🏛️', desc: 'Great Wall · Forbidden City · Hutongs',
   },
   Shanghai: {
-    img: 'https://images.unsplash.com/photo-1573455494060-c5595004fb6c?w=600&q=80',  // Shanghai skyline
+    img: '/images/Shanghai.jpg',  // Shanghai skyline
     emoji: '🌃', desc: 'The Bund · French Concession · Street Food',
   },
   "Xi'an": {
-    img: 'https://images.unsplash.com/photo-1591017403286-fd8493524e1e?w=600&q=80',  // Xi'an ancient wall
+    img: '/images/Xian.jpg',  // Xi'an ancient wall
     emoji: '⚔️', desc: 'Terracotta Warriors · City Wall · Muslim Quarter',
   },
   Chengdu: {
-    img: 'https://images.unsplash.com/photo-1598887142487-3c854d51eabb?w=600&q=80',  // Chinese traditional architecture
+    img: '/images/Chengdu.jpg',  // Chinese traditional architecture
     emoji: '🐼', desc: 'Giant Pandas · Sichuan Cuisine · Tea Houses',
   },
   Guilin: {
-    img: 'https://images.unsplash.com/photo-1558981285-6f0c94958bb6?w=600&q=80',     // Karst mountains
+    img: '/images/Guilin.jpg',     // Karst mountains
     emoji: '🏔️', desc: 'Li River · Karst Mountains · Rice Terraces',
   },
   Hangzhou: {
-    img: 'https://images.unsplash.com/photo-1545893835-abaa50cbe628?w=600&q=80',     // Traditional Chinese architecture
+    img: '/images/Hangzhou.jpg',     // Traditional Chinese architecture
     emoji: '🍵', desc: 'West Lake · Dragon Well Tea · Silk Market',
   },
 };
